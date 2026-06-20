@@ -65,6 +65,14 @@
     </div>
 
     <script>
+        const services = {
+            21: 'FTP', 22: 'SSH', 23: 'Telnet', 25: 'SMTP',
+            53: 'DNS', 80: 'HTTP', 110: 'POP3', 135: 'RPC',
+            139: 'NetBIOS', 143: 'IMAP', 443: 'HTTPS', 445: 'SMB',
+            993: 'IMAPS', 995: 'POP3S', 1723: 'PPTP', 3306: 'MySQL',
+            3389: 'RDP', 5900: 'VNC', 8080: 'HTTP-Alt'
+        };
+
         document.getElementById('scanBtn').addEventListener('click', function() {
             const target = document.getElementById('targetInput').value;
             if (!target) {
@@ -87,7 +95,6 @@
                     fetch('/api/scan/status')
                         .then(r => r.json())
                         .then(status => {
-                            // Update progress
                             document.getElementById('progressBar').style.width = status.progress + '%';
                             document.getElementById('progressBar').textContent = status.progress + '%';
 
@@ -100,7 +107,7 @@
                                         <tr>
                                             <td><strong>${port}</strong></td>
                                             <td class="open-port">✅ OPEN</td>
-                                            <td>Unknown</td>
+                                            <td>${services[port] || 'Unknown'}</td>
                                         </tr>
                                     `;
                                 });
@@ -117,10 +124,17 @@
         });
         
         document.getElementById('exportBtn').addEventListener('click', function() {
-            fetch('/api/scan/report')
+            fetch('/api/scan/report', {method: 'POST'})
                 .then(r => r.json())
                 .then(data => {
-                    alert('Report generation coming soon!');
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        alert('✅ Reports generated successfully!\n\nCheck your port-scanner folder for:\n- TXT report\n- CSV report\n- JSON report');
+                    }
+                })
+                .catch(err => {
+                    alert('Error generating report: ' + err);
                 });
         });
     </script>
