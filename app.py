@@ -40,30 +40,58 @@ def get_status():
     """Get current scan status"""
     return jsonify(scan_status)
 
-@app.route('/api/scan/report')
+@app.route('/api/scan/report', methods=['POST'])
 def generate_report():
     """Generate reports from scan results"""
-    return jsonify({"message": "Report generation coming soon"})
-
-def run_scan_background(target):
-    """Background task that runs the scan"""
-    import time
-    from scanner import scan_target
+    from reports import ReportGenerator
     
     try:
-        open_ports = []
-        for i in range(20):
-            time.sleep(0.2)
-            scan_status['progress'] = (i + 1) * 5
-            if i % 3 == 0:
-                open_ports.append(22 + i)
-                scan_status['open_ports'] = open_ports
-
+        open_ports = scan_status.get('open_ports', [])
+        if not open_ports:
+            return jsonify({"error": "No scan results to export"}), 400
+        
+        services = {
+            21: 'FTP', 22: 'SSH', 23: 'Telnet', 25: 'SMTP',
+            53: 'DNS', 80: 'HTTP', 110: 'POP3', 135: 'RPC',
+            139: 'NetBIOS', 143: 'IMAP', 443: 'HTTPS', 445: 'SMB',
+            993: 'IMAPS', 995: 'POP3S', 1723: 'PPTP', 3306: 'MySQL',
+            3389: 'RDP', 5900: 'VNC', 8080: 'HTTP-Alt'
+        }
+        
+        report = ReportGenerator(scan_status['target'])
+        files = report.generate_all(open_ports, services)
+        return jsonify({"status": "success", "files": files})
     except Exception as e:
-        print(f"Scan error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def run_scan_background(target):
+    """Simulate a scan (REPLACE with friend's scanner later)"""
+    try:
+        simulated_ports = [22, 80, 443, 3306, 3389]
+        open_ports = []
+        
+        for i, port in enumerate(simulated_ports):
+            time.sleep(0.8)
+            
+            if port not in open_ports:
+                open_ports.append(port)
+                scan_status['open_ports'] = open_ports.copy()
+            
+            progress = int(((i + 1) / len(simulated_ports)) * 100)
+            scan_status['progress'] = progress
+            
+            print(f"✅ Found open port: {port} (Progress: {progress}%)")
+        
+        scan_status['progress'] = 100
+        scan_status['completed'] = True
+        print("✅ Scan complete!")
+        
+    except Exception as e:
+        print(f"❌ Scan error: {e}")
+        scan_status['completed'] = True
     finally:
         scan_status['running'] = False
-        scan_status['completed'] = True
 
 if __name__ == '__main__':
+    print("🚀 Starting Flask server...")
     app.run(debug=True, host='0.0.0.0', port=5000)
