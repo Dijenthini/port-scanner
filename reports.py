@@ -12,7 +12,7 @@ class ReportGenerator:
         """Generate a plain text report"""
         filename = f"{self.filename_base}.txt"
         
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write("=" * 60 + "\n")
             f.write("  NETWORK RECONNAISSANCE REPORT\n")
             f.write("=" * 60 + "\n")
@@ -23,9 +23,12 @@ class ReportGenerator:
 
             f.write("OPEN PORTS:\n")
             f.write("-" * 40 + "\n")
-            for port in open_ports:
-                service = service_names.get(port, "Unknown") if service_names else "Unknown"
-                f.write(f"  Port {port}: OPEN ({service})\n")
+            if open_ports:
+                for port in open_ports:
+                    service = service_names.get(port, "Unknown") if service_names else "Unknown"
+                    f.write(f"  Port {port}: OPEN ({service})\n")
+            else:
+                f.write("  No open ports found.\n")
             f.write("\n")
 
             f.write("RISK ASSESSMENT:\n")
@@ -34,70 +37,71 @@ class ReportGenerator:
             found_risks = []
             for port in open_ports:
                 if port in risky_ports:
-                    found_risks.append(f"  ⚠️  Port {port} ({risky_ports[port]}) is considered high-risk")
+                    found_risks.append(f"  [WARNING] Port {port} ({risky_ports[port]}) is considered high-risk")
             
             if found_risks:
                 for risk in found_risks:
                     f.write(risk + "\n")
             else:
-                f.write("  ✅ No high-risk ports detected\n")
+                f.write("  [OK] No high-risk ports detected\n")
             f.write("\n")
             
             f.write("=" * 60 + "\n")
             f.write("  END OF REPORT\n")
             f.write("=" * 60 + "\n")
         
-        print(f"✅ TXT report saved to: {filename}")
+        print(f"[OK] TXT report saved to: {filename}")
         return filename
     
-    def generate_csv(self, open_ports):
-        """Generate a CSV report for data analysis"""
+    def generate_csv(self, open_ports, service_names=None):
+        """Generate a CSV report"""
         filename = f"{self.filename_base}.csv"
         
-        with open(filename, 'w', newline='') as f:
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(['Port', 'Status', 'Service'])
             if open_ports:
                 for port in open_ports:
-                    writer.writerow([port, 'OPEN', 'Unknown'])
+                    service = service_names.get(port, "Unknown") if service_names else "Unknown"
+                    writer.writerow([port, 'OPEN', service])
             else:
                 writer.writerow(['No open ports found', '', ''])
         
-        print(f"✅ CSV saved to: {filename}")
+        print(f"[OK] CSV saved to: {filename}")
         return filename
     
-    def generate_json(self, open_ports):
-        """Generate a JSON report for API consumption"""
+    def generate_json(self, open_ports, service_names=None):
+        """Generate a JSON report"""
         filename = f"{self.filename_base}.json"
         
         port_details = []
         if open_ports:
             for port in open_ports:
+                service = service_names.get(port, "Unknown") if service_names else "Unknown"
                 port_details.append({
                     'port': port,
                     'status': 'OPEN',
-                    'service': 'Unknown'
+                    'service': service
                 })
         
         data = {
             'target': self.target,
             'timestamp': self.timestamp.isoformat(),
-            'open_ports': open_ports,
-            'total_open': len(open_ports),
+            'total_open_ports': len(open_ports),
             'ports': port_details
         }
         
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
         
-        print(f"✅ JSON saved to: {filename}")
+        print(f"[OK] JSON saved to: {filename}")
         return filename
     
     def generate_all(self, open_ports, service_names=None):
         """Generate all report types at once"""
         txt = self.generate_txt(open_ports, service_names)
-        csv = self.generate_csv(open_ports)
-        json = self.generate_json(open_ports)
+        csv = self.generate_csv(open_ports, service_names)
+        json = self.generate_json(open_ports, service_names)
         return {
             'txt': txt,
             'csv': csv,
@@ -109,4 +113,4 @@ if __name__ == "__main__":
     test_services = {22: 'SSH', 80: 'HTTP', 443: 'HTTPS'}
     report = ReportGenerator("192.168.1.1")
     report.generate_all(test_ports, test_services)
-    print("\n✅ All reports generated successfully!")
+    print("\n[OK] All reports generated successfully!")
