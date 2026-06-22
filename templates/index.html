@@ -50,6 +50,8 @@
                                     <th>Port</th>
                                     <th>Status</th>
                                     <th>Service</th>
+                                    <th>Banner</th>
+                                    <th>Vulnerability</th> 
                                 </tr>
                             </thead>
                             <tbody id="resultsTable">
@@ -103,11 +105,30 @@
                                 const table = document.getElementById('resultsTable');
                                 table.innerHTML = '';
                                 status.open_ports.forEach(port => {
+                                    const service = services[port] || 'Unknown';
+                                    const banner = status.banners && status.banners[port] ? status.banners[port] : 'N/A';
+                                    let vulnHTML = '<span class="text-success">✅ No known vulns</span>';
+                                    if (status.vulnerabilities && status.vulnerabilities[port]) {
+                                        const vulns = status.vulnerabilities[port];
+                                        const severityColors = {
+                                            'CRITICAL': 'text-danger',
+                                            'HIGH': 'text-warning',
+                                            'MEDIUM': 'text-info',
+                                            'LOW': 'text-secondary'
+                                        };
+                                        vulnHTML = vulns.map(v => `
+                                            <span class="${severityColors[v.severity] || 'text-danger'}">
+                                                ⚠️ ${v.cve}
+                                                <small>(${v.severity})</small>
+                                            </span>
+                                        `).join('<br>');
+                                    }
                                     table.innerHTML += `
                                         <tr>
                                             <td><strong>${port}</strong></td>
                                             <td class="open-port">✅ OPEN</td>
-                                            <td>${services[port] || 'Unknown'}</td>
+                                            <td>${service}</td>
+                                            <td><small class="text-muted">${banner}</small></td>
                                         </tr>
                                     `;
                                 });

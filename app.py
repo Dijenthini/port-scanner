@@ -9,6 +9,8 @@ scan_status = {
     "target": "",
     "progress": 0,
     "open_ports": [],
+    "banners": {},
+    "vulnerabilities": {},
     "completed": False
 }
 
@@ -117,3 +119,9 @@ def run_scan_simulation(target):
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+def update_progress(progress, open_ports, banners=None):
+    scan_status['progress'] = progress
+    scan_status['open_ports'] = open_ports
+    if banners:
+        scan_status['banners'] = banners
