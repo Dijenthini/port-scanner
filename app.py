@@ -14,12 +14,10 @@ scan_status = {
 
 @app.route('/')
 def index():
-    """Main dashboard page"""
     return render_template('index.html')
 
 @app.route('/api/scan/start', methods=['POST'])
 def start_scan():
-    """Start a new scan"""
     data = request.json
     target = data.get('target', 'localhost')
 
@@ -37,7 +35,6 @@ def start_scan():
 
 @app.route('/api/scan/status')
 def get_status():
-    """Get current scan status"""
     return jsonify(scan_status)
 
 @app.route('/api/scan/report', methods=['POST'])
@@ -65,32 +62,57 @@ def generate_report():
         return jsonify({"error": str(e)}), 500
 
 def run_scan_background(target):
-    """Simulate a scan (REPLACE with friend's scanner later)"""
+    """Run the real port scanner (or fallback to simulation)"""
+    try:
+        from scanner import scan_target_threaded
+        
+        ports_to_scan = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 443, 445, 
+                        993, 995, 1723, 3306, 3389, 5900, 8080, 8443]
+        
+        print(f"🔍 Starting REAL scan on {target}...")
+        
+        def update_progress(progress, open_ports):
+            scan_status['progress'] = progress
+            scan_status['open_ports'] = open_ports
+        
+        result = scan_target_threaded(target, ports_to_scan, update_progress)
+        
+        scan_status['open_ports'] = result['open_ports']
+        scan_status['progress'] = 100
+        scan_status['completed'] = True
+        
+        print(f"✅ Scan complete! Found {len(result['open_ports'])} open ports")
+        
+    except ImportError:
+        print("⚠️ scanner.py not found! Using simulation...")
+        run_scan_simulation(target)
+    except Exception as e:
+        print(f"❌ Scan error: {e}")
+        scan_status['completed'] = True
+    finally:
+        scan_status['running'] = False
+
+def run_scan_simulation(target):
+    """Fallback simulation (your original code)"""
     try:
         simulated_ports = [22, 80, 443, 3306, 3389]
         open_ports = []
         
         for i, port in enumerate(simulated_ports):
             time.sleep(0.8)
-            
-            if port not in open_ports:
-                open_ports.append(port)
-                scan_status['open_ports'] = open_ports.copy()
-            
+            open_ports.append(port)
+            scan_status['open_ports'] = open_ports.copy()
             progress = int(((i + 1) / len(simulated_ports)) * 100)
             scan_status['progress'] = progress
-            
             print(f"✅ Found open port: {port} (Progress: {progress}%)")
         
         scan_status['progress'] = 100
         scan_status['completed'] = True
-        print("✅ Scan complete!")
+        print("✅ Simulation complete!")
         
     except Exception as e:
-        print(f"❌ Scan error: {e}")
+        print(f"❌ Simulation error: {e}")
         scan_status['completed'] = True
-    finally:
-        scan_status['running'] = False
 
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
