@@ -58,7 +58,7 @@ def generate_report():
         }
         
         report = ReportGenerator(scan_status['target'])
-        files = report.generate_all(open_ports, services)
+        files = report.generate_all(open_ports, services,scan_status.get('banners', {}),scan_status.get('vulnerabilities', {}))
         return jsonify({"status": "success", "files": files})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

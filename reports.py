@@ -102,10 +102,12 @@ class ReportGenerator:
         txt = self.generate_txt(open_ports, service_names)
         csv = self.generate_csv(open_ports, service_names)
         json = self.generate_json(open_ports, service_names)
+        pdf = self.generate_pdf(open_ports, service_names, banners, vulnerabilities)
         return {
             'txt': txt,
             'csv': csv,
-            'json': json
+            'json': json,
+            'pdf': pdf
         }
     
     def generate_pdf(self, open_ports, service_names=None, banners=None, vulnerabilities=None):
