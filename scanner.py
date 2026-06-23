@@ -1,3 +1,4 @@
+from vulnerabilities import parse_banner_for_vulnerabilities
 import socket
 import threading
 import time
@@ -59,7 +60,7 @@ def scan_port(target, port, timeout=1):
 
 def grab_banner(target, port, timeout=3):
     """
-    Attempt to grab a banner from an open port.
+    Attempt to grab a service banner from an open port.
     
     Args:
         target (str): IP address or hostname
@@ -67,19 +68,28 @@ def grab_banner(target, port, timeout=3):
         timeout (int): Timeout in seconds
     
     Returns:
-        str: Banner text or "No banner"
+        str: Banner text or error message
     """
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(timeout)
         sock.connect((target, port))
         
-        # Send a probe based on port type
+        # Send different probes based on service type
         if port in [80, 443, 8080, 8443]:
-            sock.send(b"HEAD / HTTP/1.0\r\n\r\n")
-        elif port == 21:
-            # FTP just needs to connect
-            pass
+            sock.send(b"HEAD / HTTP/1.0\r\nHost: " + target.encode() + b"\r\n\r\n")
+        elif port == 21:  # FTP
+            pass  # Just connect, banner is sent automatically
+        elif port == 22:  # SSH
+            pass  # SSH sends banner on connection
+        elif port == 25:  # SMTP
+            sock.send(b"EHLO test.com\r\n")
+        elif port == 110:  # POP3
+            sock.send(b"CAPA\r\n")
+        elif port == 143:  # IMAP
+            sock.send(b"CAPABILITY\r\n")
+        elif port == 3306:  # MySQL
+            pass  # MySQL sends banner on connection
         else:
             sock.send(b"\r\n")
         
@@ -89,18 +99,20 @@ def grab_banner(target, port, timeout=3):
         
         # Clean up the banner
         if banner:
-            # Take only first line
+            # Take first line only
             banner = banner.split('\n')[0]
+            # Remove special characters
+            banner = ''.join(c for c in banner if 32 <= ord(c) < 127 or c == ' ')
             # Limit length
-            if len(banner) > 100:
-                banner = banner[:100] + "..."
+            if len(banner) > 150:
+                banner = banner[:150] + "..."
         else:
             banner = "No banner received"
         
         return banner
-    except:
-        return "No banner received"
-
+    except Exception as e:
+        return f"No banner (error: {str(e)[:30]})"
+    
 def scan_target(target, ports=None, progress_callback=None):
     """
     Scan a target for open ports.
@@ -184,21 +196,30 @@ def scan_target_threaded(target, ports=None, progress_callback=None, max_threads
     banners = {}
     services = {}
     results = {}
+    vulnerabilities = {}
     
-    def scan_worker(port):
-        """Worker function for each thread"""
-        is_open = scan_port(target, port)
-        results[port] = is_open
-        if is_open:
-            services[port] = COMMON_PORTS.get(port, "Unknown")
-            banners[port] = grab_banner(target, port)
-    
+   
     print(f"\n🔍 Scanning target: {target} (Multi-threaded)")
     print(f"📡 Scanning {len(ports)} ports with {max_threads} threads...")
     print("=" * 50)
     
     start_time = datetime.now()
     
+    def scan_worker(port):
+        is_open = scan_port(target, port)
+        results[port] = is_open
+        if is_open:
+            services[port] = COMMON_PORTS.get(port, "Unknown")
+            banners[port] = grab_banner(target, port)
+        
+        # ← ADD VULNERABILITY CHECK
+            if banners[port] != "No banner received":
+                vuln_findings = parse_banner_for_vulnerabilities(banners[port], port)
+                if vuln_findings:
+                    vulnerabilities[port] = vuln_findings
+                    print(f"  ⚠️  Vulnerability found on port {port}: {vuln_findings[0]['cve']}")
+    
+
     # Create and start threads
     threads = []
     for port in ports:
