@@ -1,8 +1,3 @@
-"""
-Vulnerability Database
-Contains known vulnerabilities for common services and versions
-"""
-
 VULNERABILITY_DB = {
     'ssh': {
         'OpenSSH 7.2': {
@@ -83,16 +78,7 @@ VULNERABILITY_DB = {
 }
 
 def check_vulnerabilities(service_name, version):
-    """
-    Check if a service version has known vulnerabilities.
-    
-    Args:
-        service_name (str): Service name (e.g., 'ssh', 'apache')
-        version (str): Service version (e.g., 'OpenSSH 7.2')
-    
-    Returns:
-        dict: Vulnerability information or None
-    """
+ 
     service_name = service_name.lower()
     
     if service_name in VULNERABILITY_DB:
@@ -110,19 +96,10 @@ def check_vulnerabilities(service_name, version):
     return None
 
 def parse_banner_for_vulnerabilities(banner, port):
-    """
-    Parse a banner and check for vulnerabilities.
-    
-    Args:
-        banner (str): Service banner
-        port (int): Port number
-    
-    Returns:
-        list: List of vulnerability findings
-    """
+
     findings = []
     
-    # Map ports to service names
+    
     service_map = {
         22: 'ssh',
         80: 'apache',
@@ -137,7 +114,7 @@ def parse_banner_for_vulnerabilities(banner, port):
     if not service_name:
         return findings
     
-    # Check for known versions in banner
+    
     for version_key in VULNERABILITY_DB.get(service_name, {}):
         if version_key.lower() in banner.lower():
             vuln = check_vulnerabilities(service_name, version_key)
@@ -146,7 +123,6 @@ def parse_banner_for_vulnerabilities(banner, port):
     
     return findings
 
-# Test the vulnerability database
 if __name__ == "__main__":
     test_banners = [
         ("SSH-2.0-OpenSSH_7.2 Ubuntu-4ubuntu6", 22),
