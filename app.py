@@ -64,35 +64,27 @@ def generate_report():
         return jsonify({"error": str(e)}), 500
 
 def run_scan_background(target):
-    """Run the real port scanner (or fallback to simulation)"""
-    try:
-        from scanner import scan_target_threaded
-        
-        ports_to_scan = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 443, 445, 
-                        993, 995, 1723, 3306, 3389, 5900, 8080, 8443]
-        
-        print(f"🔍 Starting REAL scan on {target}...")
-        
-        def update_progress(progress, open_ports):
-            scan_status['progress'] = progress
-            scan_status['open_ports'] = open_ports
-        
-        result = scan_target_threaded(target, ports_to_scan, update_progress)
-        
-        scan_status['open_ports'] = result['open_ports']
-        scan_status['progress'] = 100
-        scan_status['completed'] = True
-        
-        print(f"✅ Scan complete! Found {len(result['open_ports'])} open ports")
-        
-    except ImportError:
-        print("⚠️ scanner.py not found! Using simulation...")
-        run_scan_simulation(target)
-    except Exception as e:
-        print(f"❌ Scan error: {e}")
-        scan_status['completed'] = True
-    finally:
-        scan_status['running'] = False
+    """SUPER SIMPLE TEST - NO SCANNER, NO IMPORTS"""
+    print("=" * 50)
+    print("🔥🔥🔥 TEST FUNCTION IS RUNNING! 🔥🔥🔥")
+    print(f"Target received: {target}")
+    print("=" * 50)
+    
+    # Fake a scan so the dashboard shows something
+    import time
+    fake_ports = []
+    
+    for i in range(5):
+        time.sleep(0.5)
+        fake_ports.append(22 + (i * 10))  # Adds 22, 32, 42, 52, 62
+        scan_status['progress'] = (i + 1) * 20
+        scan_status['open_ports'] = fake_ports.copy()
+        print(f"Fake progress: {scan_status['progress']}%")
+    
+    scan_status['progress'] = 100
+    scan_status['completed'] = True
+    scan_status['running'] = False
+    print("🔥🔥🔥 TEST COMPLETE! 🔥🔥🔥")
 
 def run_scan_simulation(target):
     """Fallback simulation (your original code)"""
@@ -119,9 +111,3 @@ def run_scan_simulation(target):
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
     app.run(debug=True, host='0.0.0.0', port=5000)
-
-def update_progress(progress, open_ports, banners=None):
-    scan_status['progress'] = progress
-    scan_status['open_ports'] = open_ports
-    if banners:
-        scan_status['banners'] = banners

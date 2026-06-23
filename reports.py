@@ -102,7 +102,11 @@ class ReportGenerator:
         txt = self.generate_txt(open_ports, service_names)
         csv = self.generate_csv(open_ports, service_names)
         json = self.generate_json(open_ports, service_names)
-        pdf = self.generate_pdf(open_ports, service_names, banners, vulnerabilities)
+        pdf = None
+        try:
+            pdf = self.generate_pdf(open_ports, service_names, banners, vulnerabilities)
+        except Exception as e:
+            print(f"⚠️ PDF generation skipped: {e}")
         return {
             'txt': txt,
             'csv': csv,

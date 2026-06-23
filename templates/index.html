@@ -1,311 +1,226 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔍 Network Reconnaissance Toolkit</title>
+    <title>Port Scanner</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #111927;
-            --bg-card: #1a2332;
-            --border-color: #2a3a4a;
-            --text-primary: #e8edf5;
-            --text-secondary: #8899aa;
-            --accent-blue: #4a9eff;
-            --accent-green: #3fb950;
-            --accent-red: #f85149;
-            --accent-yellow: #d29922;
-        }
-
         body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            padding: 20px;
+            background: #0a0e17;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 30px;
         }
-
         .container {
-            max-width: 1000px;
-            margin: 40px auto;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+            max-width: 800px;
+            margin: auto;
+            background: #1a2332;
+            padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
+            border: 1px solid #2a3a4a;
         }
-
-        .card-header {
-            padding: 20px 28px;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.02);
+        h1 {
+            color: #4a9eff;
+            font-size: 28px;
+            margin-bottom: 20px;
         }
-
-        .card-header h1 {
-            margin: 0;
-            font-size: 24px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .card-body {
-            padding: 28px;
-        }
-
         .input-group {
             display: flex;
             gap: 12px;
             margin-bottom: 20px;
         }
-
         .input-group input {
             flex: 1;
-            padding: 12px 18px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-            font-size: 14px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #2a3a4a;
+            background: #0a0e17;
+            color: #fff;
+            font-size: 16px;
         }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-
         .btn-scan {
-            padding: 12px 32px;
+            padding: 12px 30px;
+            background: #4a9eff;
+            color: #fff;
             border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            color: white;
-            background: linear-gradient(135deg, var(--accent-blue), #3b7dd8);
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s;
         }
-
-        .btn-scan:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(74, 158, 255, 0.3);
+        .btn-scan:hover {
+            background: #3b7dd8;
         }
-
         .btn-scan:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
         }
-
-        .progress-wrapper {
-            margin-bottom: 20px;
-        }
-
         .progress {
             height: 8px;
-            background: rgba(255, 255, 255, 0.06);
+            background: #2a3a4a;
             border-radius: 10px;
+            margin: 10px 0;
             overflow: hidden;
         }
-
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
-            border-radius: 10px;
-            transition: width 0.4s ease;
+            background: #4a9eff;
             width: 0%;
+            transition: width 0.3s;
         }
-
-        .status-text {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 6px;
+        .status {
+            color: #8899aa;
+            font-size: 14px;
+            margin: 10px 0;
         }
-
-        .results-section {
-            margin-top: 24px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 24px;
+        .results {
+            margin-top: 20px;
+            border-top: 1px solid #2a3a4a;
+            padding-top: 20px;
         }
-
-        .results-section h5 {
-            font-size: 16px;
-            margin-bottom: 16px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
         }
-
-        table thead th {
-            padding: 10px 14px;
+        th {
             text-align: left;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 10px;
+            color: #8899aa;
+            border-bottom: 1px solid #2a3a4a;
         }
-
-        table tbody td {
-            padding: 10px 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
-        table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.02);
+        .open {
+            color: #3fb950;
         }
-
-        .status-open {
-            color: var(--accent-green);
-        }
-
         .btn-export {
-            margin-top: 16px;
+            margin-top: 15px;
             padding: 8px 20px;
-            border: 1px solid var(--border-color);
+            background: transparent;
+            border: 1px solid #2a3a4a;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-secondary);
-            font-size: 13px;
+            color: #8899aa;
             cursor: pointer;
-            transition: all 0.2s;
         }
-
         .btn-export:hover {
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h1>🔍 Network Reconnaissance Toolkit</h1>
-            </div>
-            <div class="card-body">
+<div class="container">
+    <h1>🔍 Network Reconnaissance Toolkit</h1>
 
-                <div class="input-group">
-                    <input type="text" id="targetInput" placeholder="Enter target (e.g., google.com)" value="localhost">
-                    <button class="btn-scan" id="scanBtn">🚀 Start Scan</button>
-                </div>
-
-                <div class="progress-wrapper">
-                    <div class="status-text" id="statusText">Ready to scan</div>
-                    <div class="progress">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
-                </div>
-
-                <!-- Results -->
-                <div class="results-section" id="resultsSection" style="display: none;">
-                    <h5>📊 Open Ports Found</h5>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Port</th>
-                                    <th>Status</th>
-                                    <th>Service</th>
-                                </tr>
-                            </thead>
-                            <tbody id="resultsTable"></tbody>
-                        </table>
-                    </div>
-                    <button class="btn-export" id="exportBtn">📥 Export Report</button>
-                </div>
-
-            </div>
-        </div>
+    <div class="input-group">
+        <input type="text" id="target" value="localhost">
+        <button class="btn-scan" id="scanBtn">Start Scan</button>
     </div>
 
-    <script>
-        const services = {
-            21: 'FTP', 22: 'SSH', 23: 'Telnet', 25: 'SMTP',
-            53: 'DNS', 80: 'HTTP', 110: 'POP3', 135: 'RPC',
-            139: 'NetBIOS', 143: 'IMAP', 443: 'HTTPS', 445: 'SMB',
-            993: 'IMAPS', 995: 'POP3S', 1723: 'PPTP', 3306: 'MySQL',
-            3389: 'RDP', 5900: 'VNC', 8080: 'HTTP-Alt'
-        };
+    <div class="status" id="statusText">Ready to scan</div>
+    <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
 
-        let interval = null;
+    <div class="results" id="resultsSection" style="display: none;">
+        <h3>📊 Open Ports Found</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Port</th>
+                    <th>Status</th>
+                    <th>Service</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTable"></tbody>
+        </table>
+        <button class="btn-export" id="exportBtn">📥 Export Report</button>
+    </div>
+</div>
 
-        document.getElementById('scanBtn').addEventListener('click', function() {
-            const target = document.getElementById('targetInput').value.trim();
-            if (!target) {
-                alert('Please enter a target');
-                return;
-            }
+<script>
+    const services = {
+    22: 'SSH', 80: 'HTTP', 443: 'HTTPS',
+    21: 'FTP', 23: 'Telnet', 25: 'SMTP',
+    53: 'DNS', 110: 'POP3', 135: 'RPC',
+    139: 'NetBIOS', 143: 'IMAP', 445: 'SMB',
+    993: 'IMAPS', 995: 'POP3S', 1723: 'PPTP',
+    3306: 'MySQL', 3389: 'RDP', 5900: 'VNC',
+    8080: 'HTTP-Alt', 8443: 'HTTPS-Alt',
+    32: 'SAP', 42: 'WINS', 52: 'XNS', 62: 'ACAS'
+};
 
-            this.disabled = true;
-            this.textContent = '⏳ Scanning...';
-            document.getElementById('statusText').textContent = '🔄 Scanning...';
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('resultsSection').style.display = 'none';
+    let interval = null;
 
-            fetch('/api/scan/start', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ target: target })
+    document.getElementById('scanBtn').onclick = function() {
+        const target = document.getElementById('target').value.trim();
+        if (!target) {
+            alert('Enter a target');
+            return;
+        }
+
+        console.log('Scanning:', target);
+        this.disabled = true;
+        this.textContent = 'Scanning...';
+        document.getElementById('statusText').textContent = '🔍 Scanning...';
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('resultsSection').style.display = 'none';
+
+        fetch('/api/scan/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target: target })
+        }).then(() => {
+            if (interval) clearInterval(interval);
+            interval = setInterval(() => {
+                fetch('/api/scan/status')
+                    .then(r => r.json())
+                    .then(data => {
+                        console.log('Status:', data);
+                        document.getElementById('progressBar').style.width = data.progress + '%';
+
+                        if (data.open_ports && data.open_ports.length > 0) {
+                            document.getElementById('resultsSection').style.display = 'block';
+                            const table = document.getElementById('resultsTable');
+                            table.innerHTML = '';
+                            data.open_ports.forEach(port => {
+                                const service = services[port] || 'Unknown';
+                                table.innerHTML += `
+                                    <tr>
+                                        <td><strong>${port}</strong></td>
+                                        <td class="open">✅ OPEN</td>
+                                        <td>${service}</td>
+                                    </tr>
+                                `;
+                            });
+                        }
+
+                        if (data.completed) {
+                            clearInterval(interval);
+                            document.getElementById('scanBtn').disabled = false;
+                            document.getElementById('scanBtn').textContent = 'Start Scan';
+                            document.getElementById('statusText').textContent = '✅ Scan complete!';
+                            console.log('Scan complete!');
+                        }
+                    });
+            }, 1000);
+        });
+    };
+
+    document.getElementById('exportBtn').onclick = function() {
+        this.textContent = 'Generating...';
+        fetch('/api/scan/report', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                alert('Reports generated! Check your folder.');
+                this.textContent = '📥 Export Report';
             })
-            .then(() => {
-                if (interval) clearInterval(interval);
-                interval = setInterval(() => {
-                    fetch('/api/scan/status')
-                        .then(r => r.json())
-                        .then(status => {
-                            document.getElementById('progressBar').style.width = status.progress + '%';
-
-                            if (status.open_ports && status.open_ports.length > 0) {
-                                document.getElementById('resultsSection').style.display = 'block';
-                                const table = document.getElementById('resultsTable');
-                                table.innerHTML = '';
-                                status.open_ports.forEach(port => {
-                                    const service = services[port] || 'Unknown';
-                                    table.innerHTML += `
-                                        <tr>
-                                            <td><strong>${port}</strong></td>
-                                            <td class="status-open">✅ OPEN</td>
-                                            <td>${service}</td>
-                                        </tr>
-                                    `;
-                                });
-                            }
-
-                            if (status.completed) {
-                                clearInterval(interval);
-                                document.getElementById('scanBtn').disabled = false;
-                                document.getElementById('scanBtn').textContent = '🚀 Start Scan';
-                                document.getElementById('statusText').textContent = '✅ Scan complete!';
-                            }
-                        });
-                }, 1000);
+            .catch(() => {
+                alert('Error generating report');
+                this.textContent = '📥 Export Report';
             });
-        });
-
-        document.getElementById('exportBtn').addEventListener('click', function() {
-            this.textContent = '⏳ Generating...';
-            fetch('/api/scan/report', { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    alert('✅ Reports generated successfully!\n\nCheck your folder for:\n- TXT\n- CSV\n- JSON');
-                    this.textContent = '📥 Export Report';
-                })
-                .catch(() => {
-                    this.textContent = '📥 Export Report';
-                    alert('Error generating report');
-                });
-        });
-    </script>
+    };
+</script>
 
 </body>
 </html>
