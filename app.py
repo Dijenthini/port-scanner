@@ -16,12 +16,18 @@ scan_status = {
 
 @app.route('/')
 def index():
+    print("✅ INDEX PAGE LOADED")  # <-- This will show when you open the page
     return render_template('index.html')
 
 @app.route('/api/scan/start', methods=['POST'])
 def start_scan():
+    print("=" * 60)
+    print("🔥🔥🔥 START SCAN BUTTON WAS CLICKED! 🔥🔥🔥")
+    print("=" * 60)
+    
     data = request.json
     target = data.get('target', 'localhost')
+    print(f"🎯 Target received: {target}")
 
     scan_status['running'] = True
     scan_status['target'] = target
@@ -29,7 +35,8 @@ def start_scan():
     scan_status['open_ports'] = []
     scan_status['completed'] = False
 
-    thread = threading.Thread(target=run_scan_background, args=(target,))
+    # Start the background thread
+    thread = threading.Thread(target=run_scan, args=(target,))
     thread.daemon = True
     thread.start()
     
@@ -41,9 +48,7 @@ def get_status():
 
 @app.route('/api/scan/report', methods=['POST'])
 def generate_report():
-    """Generate reports from scan results"""
     from reports import ReportGenerator
-    
     try:
         open_ports = scan_status.get('open_ports', [])
         if not open_ports:
@@ -58,55 +63,77 @@ def generate_report():
         }
         
         report = ReportGenerator(scan_status['target'])
-        files = report.generate_all(open_ports, services,scan_status.get('banners', {}),scan_status.get('vulnerabilities', {}))
+        files = report.generate_all(open_ports, services)
         return jsonify({"status": "success", "files": files})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def run_scan_background(target):
-    """SUPER SIMPLE TEST - NO SCANNER, NO IMPORTS"""
-    print("=" * 50)
-    print("🔥🔥🔥 TEST FUNCTION IS RUNNING! 🔥🔥🔥")
-    print(f"Target received: {target}")
-    print("=" * 50)
+def run_scan(target):
+    print("=" * 60)
+    print("🚀🚀🚀 THE BACKGROUND SCAN HAS STARTED! 🚀🚀🚀")
+    print("=" * 60)
+    print(f"📡 Scanning target: {target}")
     
-    # Fake a scan so the dashboard shows something
-    import time
-    fake_ports = []
+    try:
+        # Try to use the REAL scanner
+        print("📥 Attempting to import scanner.py...")
+        from scanner import scan_target_threaded
+        print("✅ scanner.py imported successfully!")
+        
+        ports_to_scan = [22, 80, 443]
+        print(f"🔍 Scanning ports: {ports_to_scan}")
+        
+        # Progress callback
+        def update_progress(progress, open_ports):
+            scan_status['progress'] = progress
+            scan_status['open_ports'] = open_ports
+            print(f"📊 Progress update: {progress}%, Ports: {open_ports}")
+        
+        # ACTUALLY RUN THE SCANNER
+        print("⏳ Calling the scanner now...")
+        result = scan_target_threaded(target, ports_to_scan, update_progress)
+        
+        # Update status with results
+        scan_status['open_ports'] = result['open_ports']
+        scan_status['banners'] = result.get('banners', {})
+        scan_status['vulnerabilities'] = result.get('vulnerabilities', {})  # ← ADD THIS LINE
+        scan_status['progress'] = 100
+        scan_status['completed'] = True
+        
+        print(f"✅✅✅ SCAN COMPLETE! Found {len(result['open_ports'])} open ports")
+        print(f"📋 Ports: {result['open_ports']}")
+        
+    except ImportError as e:
+        print(f"❌ ERROR: scanner.py not found! {e}")
+        print("🔄 Falling back to simulation...")
+        run_simulation(target)
+        
+    except Exception as e:
+        print(f"❌ CRASH: {e}")
+        import traceback
+        traceback.print_exc()
+        scan_status['completed'] = True
+        
+    finally:
+        scan_status['running'] = False
+        print("🏁 Background scan finished.")
+
+def run_simulation(target):
+    print(f"🔄 SIMULATING scan on {target}...")
+    simulated_ports = [22, 80, 443]
+    open_ports = []
     
-    for i in range(5):
-        time.sleep(0.5)
-        fake_ports.append(22 + (i * 10))  # Adds 22, 32, 42, 52, 62
-        scan_status['progress'] = (i + 1) * 20
-        scan_status['open_ports'] = fake_ports.copy()
-        print(f"Fake progress: {scan_status['progress']}%")
+    for i, port in enumerate(simulated_ports):
+        time.sleep(1)
+        open_ports.append(port)
+        scan_status['open_ports'] = open_ports.copy()
+        progress = int(((i + 1) / len(simulated_ports)) * 100)
+        scan_status['progress'] = progress
+        print(f"📊 Simulation Progress: {progress}% (Found port {port})")
     
     scan_status['progress'] = 100
     scan_status['completed'] = True
-    scan_status['running'] = False
-    print("🔥🔥🔥 TEST COMPLETE! 🔥🔥🔥")
-
-def run_scan_simulation(target):
-    """Fallback simulation (your original code)"""
-    try:
-        simulated_ports = [22, 80, 443, 3306, 3389]
-        open_ports = []
-        
-        for i, port in enumerate(simulated_ports):
-            time.sleep(0.8)
-            open_ports.append(port)
-            scan_status['open_ports'] = open_ports.copy()
-            progress = int(((i + 1) / len(simulated_ports)) * 100)
-            scan_status['progress'] = progress
-            print(f"✅ Found open port: {port} (Progress: {progress}%)")
-        
-        scan_status['progress'] = 100
-        scan_status['completed'] = True
-        print("✅ Simulation complete!")
-        
-    except Exception as e:
-        print(f"❌ Simulation error: {e}")
-        scan_status['completed'] = True
+    print("✅ SIMULATION COMPLETE")
 
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
