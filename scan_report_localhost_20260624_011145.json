@@ -1,6 +1,6 @@
 {
   "target": "localhost",
-  "timestamp": "2026-06-20T14:25:55.361358",
+  "timestamp": "2026-06-24T01:11:45.562916",
   "total_open_ports": 5,
   "ports": [
     {
@@ -9,24 +9,24 @@
       "service": "SSH"
     },
     {
-      "port": 80,
+      "port": 32,
       "status": "OPEN",
-      "service": "HTTP"
+      "service": "Unknown"
     },
     {
-      "port": 443,
+      "port": 42,
       "status": "OPEN",
-      "service": "HTTPS"
+      "service": "Unknown"
     },
     {
-      "port": 3306,
+      "port": 52,
       "status": "OPEN",
-      "service": "MySQL"
+      "service": "Unknown"
     },
     {
-      "port": 3389,
+      "port": 62,
       "status": "OPEN",
-      "service": "RDP"
+      "service": "Unknown"
     }
   ]
 }

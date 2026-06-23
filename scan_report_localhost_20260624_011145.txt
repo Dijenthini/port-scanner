@@ -2,21 +2,21 @@
   NETWORK RECONNAISSANCE REPORT
 ============================================================
 Target: localhost
-Scan Date: 2026-06-20 14:25:55
+Scan Date: 2026-06-24 01:11:45
 Open Ports Found: 5
 ------------------------------------------------------------
 
 OPEN PORTS:
 ----------------------------------------
   Port 22: OPEN (SSH)
-  Port 80: OPEN (HTTP)
-  Port 443: OPEN (HTTPS)
-  Port 3306: OPEN (MySQL)
-  Port 3389: OPEN (RDP)
+  Port 32: OPEN (Unknown)
+  Port 42: OPEN (Unknown)
+  Port 52: OPEN (Unknown)
+  Port 62: OPEN (Unknown)
 
 RISK ASSESSMENT:
 ----------------------------------------
-  [WARNING] Port 3389 (RDP) is considered high-risk
+  [OK] No high-risk ports detected
 
 ============================================================
   END OF REPORT
