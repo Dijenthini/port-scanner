@@ -1,10 +1,45 @@
 # 🔍 Network Reconnaissance Toolkit
 
+
+![Python](https://img.shields.io/badge/Python-3.14%2B-blue?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-2.3.x-black?style=for-the-badge&logo=flask&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=for-the-badge)
+![PRs](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)
+
+
 A web-based port scanner and vulnerability detector built with Python and Flask. Scan any target host for open ports, grab service banners, and detect known CVEs — all from a clean browser UI.
 
 > ⚠️ **For educational and authorized use only.** Only scan hosts you own or have explicit permission to test.
  
 ---
+
+## 📑 Table of Contents
+
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [⚙️ Installation & Setup](#️-installation--setup)
+- [🚀 Usage](#-usage)
+- [📸 Screenshots](#-screenshots)
+- [🔍 How It Works](#-how-it-works)
+- [📋 Supported Services](#-supported-services)
+- [⚠️ Known CVEs Detected](#️-known-cves-detected)
+- [⚠️ Legal Disclaimer](#️-legal-disclaimer)
+- [📝 License](#-license)
+- [👥 Team](#-team)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [🔗 Links](#-links)
+
+---
+
 ## ✨ Features
 
 | Feature | Description |
@@ -59,7 +94,7 @@ network-recon-toolkit/
  
 ### Prerequisites
  
-- Python 3.8+
+- Python 3.14+
 - pip
 ### 1. Clone the repository
  
@@ -113,6 +148,104 @@ Quick Start
     📥 JSON – Developer-friendly
 
     📥 PDF – Professional reports
+
+---
+
+## 📸 Screenshots
+
+### Dashboard – Scan in Progress
+
+![Scan in Progress](screenshots/dashboard-ui.png)
+
+*Live progress bar and real-time results updating during a scan.*
+
+---
+
+### Dashboard – Ready to Scan
+
+![Dashboard Ready](screenshots/dashboard-ready.png)
+
+*The main dashboard with target input, scan mode toggle, and status indicators.*
+
+---
+
+### Dashboard – Quick Scan Results
+
+![Quick Scan Results](screenshots/quick-scan-results.png)
+
+*Quick scan results showing open ports, services, banners, and detected vulnerabilities.*
+
+---
+
+### Dashboard – Full Scan Results
+
+![Full Scan Results](screenshots/full-scan-results.png)
+
+*Full scan (1-1024) results showing all open ports and vulnerabilities.*
+
+---
+
+### Reports Ready
+
+![Reports Ready](screenshots/reports-ready.png)
+
+*Reports generated and ready for download (TXT, CSV, JSON, PDF).*
+
+---
+
+### PDF Report
+
+![PDF Report](screenshots/pdf-report.png)
+
+*Professional PDF report with port details, service banners, and vulnerability assessment.*
+
+---
+
+### CSV Report
+
+![CSV Report](screenshots/CSV-report.png)
+
+*CSV report opened in a spreadsheet application. Shows organized data with columns for Port, Status, Service, Banner, CVE, and Severity. Ideal for data analysis, filtering, and further processing in Excel or similar tools.*
+
+---
+
+### TXT Report
+
+![TXT Report](screenshots/txt-report.png)
+
+*Plain text report showing a clean, human-readable format. Includes target information, scan date, open ports with services, detected vulnerabilities with CVE details and severity levels, and a risk assessment summary.*
+
+---
+
+### JSON Report
+
+![JSON Report](screenshots/json-report.png)
+
+*JSON report structure showing vulnerability data including CVE, description, and severity.*
+
+---
+
+### Terminal Output
+
+![Terminal Output](screenshots/terminal-scan-output.png)
+
+*Terminal output showing scan progress, open ports, and vulnerability detection.*
+
+---
+
+### CLI Scanner - Quick Mode
+
+![CLI Scanner](screenshots/cli-scanner-quick.png)
+
+*Command-line scanner running in Quick mode, scanning 18 common ports. Shows real-time output of open ports, service banners, and detected CVEs (CVE-2015-5600) with severity level (MEDIUM).*
+
+---
+
+### CLI Scanner – Full Mode
+
+![CLI Scanner Full](screenshots/cli-scanner-full.png)
+
+*Command-line scanner running in Full mode, scanning all 1,024 well-known ports. Demonstrates multi-threaded scanning performance and comprehensive port detection across the full port range.*
 
 ---
 
@@ -214,14 +347,24 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 - [ReportLab](https://www.reportlab.com/) – for PDF generation
 
 ---
-
-⭐ **Star this repository if you found it useful!**
-
----
 ## 📝 License
 
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
 
 **Disclaimer:** This tool is for educational and authorized testing purposes only. The authors are not responsible for any misuse or damage caused by this software.
+
+---
+
+## ⭐ Show Your Support
+
+Give this project a star ⭐ on GitHub!
+
+---
+
+## 📧 Contact
+
+- GitHub: [@Dijenthini](https://github.com/Dijenthini) , [@niduwara-j](https://github.com/niduwara-j)
+- LinkedIn: [Dijenthini Mariya Xavier](https://www.linkedin.com/in/dijenthini-mariya-xavier-a70a21368) , [Niduwara Jayasiri
+](https://www.linkedin.com/in/niduwara-jayasiri-2169a33ab/)
 
 ---
