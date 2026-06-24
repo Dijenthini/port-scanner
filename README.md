@@ -153,11 +153,11 @@ Quick Start
 
 ## 📸 Screenshots
 
-### Dashboard – Scan in Progress
+### Dashboard UI & Server Startup
 
 ![Scan in Progress](screenshots/dashboard-ui.png)
 
-*Live progress bar and real-time results updating during a scan.*
+*The main dashboard interface with the Flask server starting up in the terminal. Shows the application running on `http://localhost:5000` with debug mode disabled, ready to accept scan requests.*
 
 ---
 
