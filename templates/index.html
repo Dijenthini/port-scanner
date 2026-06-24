@@ -8,22 +8,22 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ── Palette ──────────────────────────────────────────────────────── */
         :root {
-            --black:       #08060f;
-            --surface:     #110d20;
-            --surface-2:   #1c1630;
-            --border:      #2e2250;
-            --border-hi:   #7c3aed;
-            --purple:      #7c3aed;
-            --purple-light:#a78bfa;
-            --purple-glow: rgba(124,58,237,0.25);
-            --white:       #ffffff;
-            --white-90:    rgba(255,255,255,0.90);
-            --white-60:    rgba(255,255,255,0.60);
-            --white-20:    rgba(255,255,255,0.12);
-            --green:       #22c55e;
-            --red:         #f87171;
+            --black:        #08060f;
+            --surface:      #110d20;
+            --surface-2:    #1c1630;
+            --border:       #2e2250;
+            --border-hi:    #7c3aed;
+            --purple:       #7c3aed;
+            --purple-light: #a78bfa;
+            --purple-glow:  rgba(124,58,237,0.25);
+            --white:        #ffffff;
+            --white-90:     rgba(255,255,255,0.90);
+            --white-60:     rgba(255,255,255,0.60);
+            --white-20:     rgba(255,255,255,0.12);
+            --green:        #22c55e;
+            --red:          #f87171;
+            --orange:       #fb923c;
         }
 
         body {
@@ -34,332 +34,213 @@
             padding: 32px 20px;
         }
 
-        /* ── Layout ──────────────────────────────────────────────────────── */
         .container { max-width: 960px; margin: 0 auto; }
 
-        /* ── Header ──────────────────────────────────────────────────────── */
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 32px;
-        }
+        /* ── Header ── */
+        .header { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; }
         .header-icon {
             width: 44px; height: 44px;
             background: var(--purple);
             border-radius: 12px;
             display: grid; place-items: center;
-            font-size: 22px;
-            flex-shrink: 0;
+            font-size: 22px; flex-shrink: 0;
             box-shadow: 0 0 20px var(--purple-glow);
         }
-        .header-text h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--white);
-            letter-spacing: -0.3px;
-        }
-        .header-text p {
-            font-size: 13px;
-            color: var(--white-60);
-            margin-top: 2px;
-        }
+        .header-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+        .header-text p  { font-size: 13px; color: var(--white-60); margin-top: 2px; }
 
-        /* ── Card ────────────────────────────────────────────────────────── */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-        }
+        /* ── Card ── */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
         .card-body { padding: 28px; }
 
-        /* ── Section label ───────────────────────────────────────────────── */
         .section-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--white-60);
-            margin-bottom: 10px;
+            font-size: 11px; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--white-60); margin-bottom: 10px;
         }
 
-        /* ── Input row ───────────────────────────────────────────────────── */
-        .input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .input-wrap {
-            flex: 1;
-            position: relative;
-        }
+        /* ── Input row ── */
+        .input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+        .input-wrap { flex: 1; position: relative; }
         .input-wrap .input-icon {
-            position: absolute;
-            left: 14px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 15px;
-            pointer-events: none;
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); font-size: 15px; pointer-events: none;
         }
         .input-wrap input {
-            width: 100%;
-            padding: 13px 14px 13px 40px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: var(--surface-2);
-            color: var(--white);
-            font-size: 14px;
-            font-family: 'JetBrains Mono', monospace;
+            width: 100%; padding: 13px 14px 13px 40px;
+            border: 1px solid var(--border); border-radius: 10px;
+            background: var(--surface-2); color: var(--white);
+            font-size: 14px; font-family: 'JetBrains Mono', monospace;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .input-wrap input::placeholder { color: var(--white-60); }
         .input-wrap input:focus {
-            outline: none;
-            border-color: var(--purple);
+            outline: none; border-color: var(--purple);
             box-shadow: 0 0 0 3px var(--purple-glow);
         }
 
         .btn-scan {
-            padding: 13px 28px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--white);
-            background: var(--purple);
-            cursor: pointer;
-            white-space: nowrap;
+            padding: 13px 28px; border: none; border-radius: 10px;
+            font-weight: 600; font-size: 14px; color: var(--white);
+            background: var(--purple); cursor: pointer; white-space: nowrap;
             transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
             box-shadow: 0 4px 14px var(--purple-glow);
         }
         .btn-scan:hover:not(:disabled) {
-            background: #6d28d9;
-            transform: translateY(-1px);
+            background: #6d28d9; transform: translateY(-1px);
             box-shadow: 0 6px 20px var(--purple-glow);
         }
         .btn-scan:active:not(:disabled) { transform: translateY(0); }
         .btn-scan:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
-        /* ── Status bar ──────────────────────────────────────────────────── */
-        .status-bar {
+        /* ── Scan mode toggle ── */
+        .mode-row {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 20px;
         }
+        .mode-label { font-size: 12px; color: var(--white-60); font-weight: 500; }
+        .mode-toggle {
+            display: flex;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .mode-btn {
+            padding: 6px 16px;
+            border: none;
+            background: transparent;
+            color: var(--white-60);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            position: relative;
+        }
+        .mode-btn.active {
+            background: var(--purple);
+            color: var(--white);
+        }
+        .mode-btn:not(.active):hover { color: var(--white); }
+
+        .mode-info {
+            font-size: 12px;
+            color: var(--white-60);
+            margin-left: 4px;
+        }
+        .mode-info .highlight { color: var(--purple-light); font-weight: 600; }
+
+        /* ── Status ── */
+        .status-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--white-20);
-            flex-shrink: 0;
-            transition: background 0.3s;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--white-20); flex-shrink: 0; transition: background 0.3s;
         }
         .status-dot.scanning { background: var(--purple-light); animation: pulse 1s infinite; }
         .status-dot.done     { background: var(--green); }
         .status-dot.error    { background: var(--red); }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.4; }
-        }
-        .status-text {
-            font-size: 13px;
-            color: var(--white-60);
-            transition: color 0.2s;
-        }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+        .status-text { font-size: 13px; color: var(--white-60); transition: color 0.2s; }
         .status-text.error { color: var(--red); }
         .status-text.done  { color: var(--green); }
 
         .progress-wrap {
-            height: 4px;
-            background: var(--white-20);
-            border-radius: 99px;
-            overflow: hidden;
-            margin-bottom: 28px;
+            height: 4px; background: var(--white-20);
+            border-radius: 99px; overflow: hidden; margin-bottom: 28px;
         }
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--purple), var(--purple-light));
-            border-radius: 99px;
-            width: 0%;
-            transition: width 0.4s ease;
+            border-radius: 99px; width: 0%; transition: width 0.4s ease;
         }
 
-        /* ── Divider ─────────────────────────────────────────────────────── */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 0 -28px 28px;
-        }
+        /* ── Divider ── */
+        .divider { height: 1px; background: var(--border); margin: 0 -28px 28px; }
 
-        /* ── Results header ──────────────────────────────────────────────── */
+        /* ── Results ── */
         .results-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 16px;
         }
-        .results-header h3 {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--white);
-        }
+        .results-header h3 { font-size: 15px; font-weight: 600; }
         .port-count {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 99px;
+            font-size: 12px; font-weight: 600;
+            padding: 3px 10px; border-radius: 99px;
             background: var(--purple-glow);
             border: 1px solid var(--border-hi);
             color: var(--purple-light);
         }
 
-        /* ── Table ───────────────────────────────────────────────────────── */
-        .table-wrap {
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-        }
+        /* ── Table ── */
+        .table-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
         thead { background: var(--surface-2); }
         th {
-            text-align: left;
-            padding: 11px 16px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--white-60);
-            border-bottom: 1px solid var(--border);
+            text-align: left; padding: 11px 16px;
+            font-size: 11px; font-weight: 600;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--white-60); border-bottom: 1px solid var(--border);
         }
         td {
-            padding: 13px 16px;
-            border-bottom: 1px solid var(--border);
-            color: var(--white-90);
-            vertical-align: top;
+            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            color: var(--white-90); vertical-align: top;
         }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: rgba(124,58,237,0.06); }
 
-        .port-num {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: var(--white);
-            font-size: 14px;
-        }
+        .port-num { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 14px; }
         .badge-open {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--green);
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; font-weight: 600; color: var(--green);
             background: rgba(34,197,94,0.10);
             border: 1px solid rgba(34,197,94,0.25);
-            border-radius: 6px;
-            padding: 3px 10px;
+            border-radius: 6px; padding: 3px 10px;
         }
-        .service-name {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            color: var(--white-90);
-        }
-        .vuln-none {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            color: var(--white-60);
-        }
-        .vuln-found {
-            display: inline-flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .vuln-cve {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--red);
-        }
-        .vuln-meta {
-            font-size: 11px;
-            color: var(--white-60);
-        }
+        .service-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        .vuln-none { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--white-60); }
+        .vuln-found { display: inline-flex; flex-direction: column; gap: 2px; }
+        .vuln-cve { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--red); }
+        .vuln-meta { font-size: 11px; color: var(--white-60); }
         .severity-badge {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            padding: 1px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
+            display: inline-block; font-size: 10px; font-weight: 700;
+            letter-spacing: 0.05em; padding: 1px 6px;
+            border-radius: 4px; text-transform: uppercase;
         }
         .sev-critical { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
         .sev-high     { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
         .sev-medium   { background: rgba(250,204,21,0.12);  color: #fbbf24; border: 1px solid rgba(250,204,21,0.3); }
         .sev-low      { background: rgba(34,197,94,0.12);   color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
 
-        /* ── Export ──────────────────────────────────────────────────────── */
+        /* ── Export ── */
         .export-section { margin-top: 24px; }
-        .export-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--white-60);
-            margin-bottom: 10px;
-        }
-        .export-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        .export-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .btn-export {
-            padding: 8px 18px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface-2);
-            color: var(--white-60);
-            cursor: pointer;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            transition: all 0.2s;
+            padding: 8px 18px; border: 1px solid var(--border);
+            border-radius: 8px; background: var(--surface-2);
+            color: var(--white-60); cursor: pointer;
+            font-size: 13px; font-family: 'Inter', sans-serif;
+            font-weight: 500; transition: all 0.2s;
         }
         .btn-export:hover:not(:disabled) {
-            border-color: var(--purple);
-            color: var(--white);
+            border-color: var(--purple); color: var(--white);
             background: rgba(124,58,237,0.12);
         }
         .btn-export:disabled { opacity: 0.35; cursor: not-allowed; }
-
         #generateBtn {
-            border-color: var(--purple);
-            color: var(--purple-light);
-            background: rgba(124,58,237,0.10);
-            font-weight: 600;
+            border-color: var(--purple); color: var(--purple-light);
+            background: rgba(124,58,237,0.10); font-weight: 600;
         }
-        #generateBtn:hover:not(:disabled) {
-            background: rgba(124,58,237,0.22);
-            color: var(--white);
-        }
-        #generateBtn.ready {
-            border-color: var(--green);
-            color: var(--green);
-            background: rgba(34,197,94,0.08);
-            cursor: default;
-        }
+        #generateBtn:hover:not(:disabled) { background: rgba(124,58,237,0.22); color: var(--white); }
+        #generateBtn.ready { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); cursor: default; }
 
-        /* ── Empty state ─────────────────────────────────────────────────── */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--white-60);
-            font-size: 14px;
-        }
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--white-60); font-size: 14px; }
         .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
 
-        /* ── Results section hidden by default ───────────────────────────── */
         .results-section { display: none; }
     </style>
 </head>
@@ -367,7 +248,6 @@
 
 <div class="container">
 
-    <!-- Header -->
     <div class="header">
         <div class="header-icon">🔍</div>
         <div class="header-text">
@@ -376,7 +256,6 @@
         </div>
     </div>
 
-    <!-- Main card -->
     <div class="card">
         <div class="card-body">
 
@@ -390,6 +269,18 @@
                            value="scanme.nmap.org">
                 </div>
                 <button class="btn-scan" id="scanBtn">▶ Start Scan</button>
+            </div>
+
+            <!-- Scan mode toggle -->
+            <div class="mode-row">
+                <span class="mode-label">Mode:</span>
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="modeQuick" onclick="setMode('quick')">Quick</button>
+                    <button class="mode-btn"        id="modeFull"  onclick="setMode('full')">Full (1–1024)</button>
+                </div>
+                <span class="mode-info" id="modeInfo">
+                    Scanning <span class="highlight">18 common ports</span>
+                </span>
             </div>
 
             <!-- Status -->
@@ -424,9 +315,8 @@
                     </table>
                 </div>
 
-                <!-- Export -->
                 <div class="export-section">
-                    <div class="export-label">Export Report</div>
+                    <div class="section-label" style="margin-top:0">Export Report</div>
                     <div class="export-row">
                         <button class="btn-export" id="generateBtn">📦 Generate Reports</button>
                         <button class="btn-export" id="dlTxt"  disabled>⬇ TXT</button>
@@ -443,15 +333,32 @@
 
 <script>
     const SERVICE_NAMES = {
-        21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP', 53:'DNS',
-        80:'HTTP', 110:'POP3', 135:'RPC', 139:'NetBIOS', 143:'IMAP',
-        443:'HTTPS', 445:'SMB', 993:'IMAPS', 995:'POP3S', 1723:'PPTP',
-        3306:'MySQL', 3389:'RDP', 5900:'VNC', 8080:'HTTP-Alt', 8443:'HTTPS-Alt'
+        20:'FTP-Data', 21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP',
+        53:'DNS', 69:'TFTP', 79:'Finger', 80:'HTTP', 110:'POP3',
+        111:'RPCBind', 119:'NNTP', 123:'NTP', 135:'RPC', 137:'NetBIOS-NS',
+        138:'NetBIOS-DGM', 139:'NetBIOS', 143:'IMAP', 161:'SNMP',
+        179:'BGP', 194:'IRC', 389:'LDAP', 443:'HTTPS', 445:'SMB',
+        465:'SMTPS', 500:'IKE', 514:'Syslog', 515:'LPD', 587:'SMTP-Submit',
+        631:'IPP', 636:'LDAPS', 873:'rsync', 902:'VMware',
+        989:'FTPS-Data', 990:'FTPS', 993:'IMAPS', 995:'POP3S',
+        1080:'SOCKS', 1194:'OpenVPN', 1433:'MSSQL', 1521:'Oracle',
+        1723:'PPTP', 2049:'NFS', 2375:'Docker', 2376:'Docker-TLS',
+        3000:'Dev-Server', 3128:'Squid', 3306:'MySQL', 3389:'RDP',
+        5432:'PostgreSQL', 5900:'VNC', 5985:'WinRM', 6379:'Redis',
+        7001:'WebLogic', 8080:'HTTP-Alt', 8443:'HTTPS-Alt',
+        8888:'Jupyter', 9200:'Elasticsearch', 9418:'Git',
+        10000:'Webmin', 11211:'Memcached', 27017:'MongoDB',
     };
 
+    let currentMode   = 'quick';
     let pollInterval  = null;
     let pollTimeoutId = null;
-    const POLL_TIMEOUT_MS = 5 * 60 * 1000;
+    const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 min (full scan can take longer)
+
+    const MODE_INFO = {
+        quick: 'Scanning <span class="highlight">18 common ports</span>',
+        full:  'Scanning <span class="highlight">1,024 ports</span> — may take 1–2 min'
+    };
 
     const scanBtn        = document.getElementById('scanBtn');
     const statusText     = document.getElementById('statusText');
@@ -468,10 +375,17 @@
         pdf:  document.getElementById('dlPdf')
     };
 
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeQuick').classList.toggle('active', mode === 'quick');
+        document.getElementById('modeFull').classList.toggle('active',  mode === 'full');
+        document.getElementById('modeInfo').innerHTML = MODE_INFO[mode];
+    }
+
     function setStatus(msg, state = 'idle') {
         statusText.textContent = msg;
-        statusText.className = 'status-text' + (state === 'error' ? ' error' : state === 'done' ? ' done' : '');
-        statusDot.className  = 'status-dot'  + (state === 'scanning' ? ' scanning' : state === 'done' ? ' done' : state === 'error' ? ' error' : '');
+        statusText.className   = 'status-text' + (state === 'error' ? ' error' : state === 'done' ? ' done' : '');
+        statusDot.className    = 'status-dot'   + (state === 'scanning' ? ' scanning' : state === 'done' ? ' done' : state === 'error' ? ' error' : '');
     }
 
     function stopPolling() {
@@ -482,6 +396,8 @@
     function resetScanUI() {
         scanBtn.disabled    = false;
         scanBtn.textContent = '▶ Start Scan';
+        document.getElementById('modeQuick').disabled = false;
+        document.getElementById('modeFull').disabled  = false;
     }
 
     function severityClass(sev) {
@@ -534,26 +450,32 @@
         stopPolling();
         scanBtn.disabled    = true;
         scanBtn.textContent = '⏳ Scanning...';
+        // Lock mode buttons while scan is running
+        document.getElementById('modeQuick').disabled = true;
+        document.getElementById('modeFull').disabled  = true;
+
         progressBar.style.width = '0%';
         resultsSection.style.display = 'none';
         resultsTable.innerHTML = '';
         Object.values(dlBtns).forEach(b => b.disabled = true);
-        generateBtn.className = 'btn-export';
+        generateBtn.className   = 'btn-export';
         generateBtn.textContent = '📦 Generate Reports';
-        generateBtn.disabled = false;
-        setStatus('Starting scan...', 'scanning');
+        generateBtn.disabled    = false;
+
+        const modeLabel = currentMode === 'full' ? 'full scan (1–1024)' : 'quick scan';
+        setStatus(`Starting ${modeLabel}...`, 'scanning');
 
         fetch('/api/scan/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target })
+            body: JSON.stringify({ target, mode: currentMode })
         })
         .then(r => {
             if (!r.ok) return r.json().then(d => { throw new Error(d.message || 'Failed to start scan'); });
             return r.json();
         })
         .then(() => {
-            setStatus('Scanning ports...', 'scanning');
+            setStatus(`Scanning ports (${currentMode} mode)...`, 'scanning');
             startPolling();
         })
         .catch(err => {
@@ -600,7 +522,7 @@
                         }
                     }
                 })
-                .catch(() => { /* network blip — keep polling */ });
+                .catch(() => {});
         }, 1000);
     }
 
