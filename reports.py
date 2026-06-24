@@ -10,7 +10,6 @@ class ReportGenerator:
     def __init__(self, target):
         self.target = target
         self.timestamp = datetime.now()
-        # Sanitize target so it's safe as a filename
         safe_target = target.replace(':', '_').replace('/', '_').replace('\\', '_')
         self.filename_base = os.path.join(
             REPORTS_DIR,
@@ -225,8 +224,6 @@ class ReportGenerator:
             'pdf':  pdf_file
         }
 
-
-# ── CLI test ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     test_ports = [22, 80, 443]
     test_services = {22: 'SSH', 80: 'HTTP', 443: 'HTTPS'}

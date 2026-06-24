@@ -35,7 +35,7 @@ def start_scan():
     try:
         data   = request.json
         target = data.get('target', '').strip()
-        mode   = data.get('mode', 'quick').strip()   # 'quick' or 'full'
+        mode   = data.get('mode', 'quick').strip()
 
         if not target:
             return jsonify({"status": "error", "message": "Target cannot be empty"}), 400
@@ -137,15 +137,21 @@ def run_scan(target, mode='quick'):
         from scanner import scan_target_threaded, get_ports_for_mode
 
         ports = get_ports_for_mode(mode)
-        # Use more threads for full scan so it stays reasonably fast
         max_threads = 100 if mode == 'full' else 50
 
         print(f"📡 Scanning {len(ports)} ports with {max_threads} threads")
+        live = {'banners': {}, 'vulnerabilities': {}}
 
         def update_progress(progress, open_ports):
-            update_status(progress=progress, open_ports=open_ports)
+            update_status(
+                progress        = progress,
+                open_ports      = open_ports,
+                banners         = dict(live['banners']),
+                vulnerabilities = dict(live['vulnerabilities'])
+            )
 
-        result = scan_target_threaded(target, ports, update_progress, max_threads)
+        result = scan_target_threaded(target, ports, update_progress,
+                                      max_threads, live_ref=live)
 
         update_status(
             open_ports      = result.get("open_ports", []),
