@@ -1,5 +1,11 @@
 VULNERABILITY_DB = {
     'ssh': {
+        'OpenSSH_6.6.1p1': {
+            'cve': 'CVE-2015-5600',
+            'description': 'SSH user enumeration vulnerability',
+            'severity': 'MEDIUM',
+            'link': 'https://nvd.nist.gov/vuln/detail/CVE-2015-5600'
+        },
         'OpenSSH 7.2': {
             'cve': 'CVE-2016-6210',
             'description': 'User enumeration vulnerability',
@@ -78,7 +84,7 @@ VULNERABILITY_DB = {
 }
 
 def check_vulnerabilities(service_name, version):
- 
+
     service_name = service_name.lower()
     
     if service_name in VULNERABILITY_DB:
@@ -123,9 +129,10 @@ def parse_banner_for_vulnerabilities(banner, port):
     
     return findings
 
+
 if __name__ == "__main__":
     test_banners = [
-        ("SSH-2.0-OpenSSH_7.2 Ubuntu-4ubuntu6", 22),
+        ("SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2.13", 22),
         ("Apache/2.4.49 (Ubuntu)", 80),
         ("MySQL 5.7.0", 3306)
     ]
