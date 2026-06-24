@@ -28,6 +28,7 @@ A web-based port scanner and vulnerability detector built with Python and Flask.
 - [⚙️ Installation & Setup](#️-installation--setup)
 - [🚀 Usage](#-usage)
 - [📸 Screenshots](#-screenshots)
+- [🎥 Demo Video](#-demo-video)
 - [🔍 How It Works](#-how-it-works)
 - [📋 Supported Services](#-supported-services)
 - [⚠️ Known CVEs Detected](#️-known-cves-detected)
@@ -244,6 +245,14 @@ Quick Start
 ![CLI Scanner Full](screenshots/cli-scanner-full.png)
 
 *Command-line scanner running in Full mode, scanning all 1,024 well-known ports. Demonstrates multi-threaded scanning performance and comprehensive port detection across the full port range.*
+
+---
+
+## 🎥 Demo Video
+
+[🎬 Watch the demo video here](https://github.com/Dijenthini/port-scanner/releases/download/v1.0/Demo.mp4)
+
+*Quick walkthrough of the toolkit in action — scanning, vulnerability detection, and report generation.*
 
 ---
 
