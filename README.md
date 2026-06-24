@@ -354,13 +354,6 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 - [ReportLab](https://www.reportlab.com/) – for PDF generation
 
 ---
-## 📝 License
-
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
-
-**Disclaimer:** This tool is for educational and authorized testing purposes only. The authors are not responsible for any misuse or damage caused by this software.
-
----
 
 ## ⭐ Show Your Support
 
