@@ -36,7 +36,6 @@ A web-based port scanner and vulnerability detector built with Python and Flask.
 - [📝 License](#-license)
 - [👥 Team](#-team)
 - [🙏 Acknowledgments](#-acknowledgments)
-- [🔗 Links](#-links)
 
 ---
 
