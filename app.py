@@ -5,12 +5,12 @@ import os
 
 app = Flask(__name__)
 
-# Thread lock for safe access to scan_status
 scan_lock = threading.Lock()
 
 scan_status = {
     "running": False,
     "target": "",
+    "mode": "quick",
     "progress": 0,
     "open_ports": [],
     "banners": {},
@@ -21,7 +21,6 @@ scan_status = {
 }
 
 def update_status(**kwargs):
-    """Thread-safe update of scan_status."""
     with scan_lock:
         scan_status.update(kwargs)
 
@@ -34,11 +33,15 @@ def start_scan():
     import socket
 
     try:
-        data = request.json
+        data   = request.json
         target = data.get('target', '').strip()
+        mode   = data.get('mode', 'quick').strip()   # 'quick' or 'full'
 
         if not target:
             return jsonify({"status": "error", "message": "Target cannot be empty"}), 400
+
+        if mode not in ('quick', 'full'):
+            return jsonify({"status": "error", "message": "Invalid mode. Use 'quick' or 'full'"}), 400
 
         try:
             socket.gethostbyname(target)
@@ -52,6 +55,7 @@ def start_scan():
             scan_status.update({
                 "running": True,
                 "target": target,
+                "mode": mode,
                 "progress": 0,
                 "open_ports": [],
                 "banners": {},
@@ -61,11 +65,11 @@ def start_scan():
                 "report_files": {}
             })
 
-        thread = threading.Thread(target=run_scan, args=(target,))
+        thread = threading.Thread(target=run_scan, args=(target, mode))
         thread.daemon = True
         thread.start()
 
-        return jsonify({"status": "started", "message": f"Scanning {target}"})
+        return jsonify({"status": "started", "message": f"Scanning {target} ({mode} mode)"})
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -75,14 +79,15 @@ def start_scan():
 def get_status():
     with scan_lock:
         return jsonify({
-            "running": scan_status["running"],
-            "target": scan_status["target"],
-            "progress": scan_status["progress"],
-            "open_ports": scan_status["open_ports"],
-            "banners": scan_status["banners"],
+            "running":         scan_status["running"],
+            "target":          scan_status["target"],
+            "mode":            scan_status["mode"],
+            "progress":        scan_status["progress"],
+            "open_ports":      scan_status["open_ports"],
+            "banners":         scan_status["banners"],
             "vulnerabilities": scan_status["vulnerabilities"],
-            "completed": scan_status["completed"],
-            "error": scan_status["error"]
+            "completed":       scan_status["completed"],
+            "error":           scan_status["error"]
         })
 
 
@@ -90,29 +95,21 @@ def get_status():
 def generate_report():
     try:
         from reports import ReportGenerator
+        from scanner import COMMON_PORTS
 
         with scan_lock:
-            open_ports = scan_status.get("open_ports", [])
-            target = scan_status.get("target", "unknown")
-            banners = scan_status.get("banners", {})
+            open_ports      = scan_status.get("open_ports", [])
+            target          = scan_status.get("target", "unknown")
+            banners         = scan_status.get("banners", {})
             vulnerabilities = scan_status.get("vulnerabilities", {})
 
         if not open_ports:
             return jsonify({"status": "error", "message": "No scan results available"}), 400
 
-        services = {
-            21: 'FTP', 22: 'SSH', 23: 'Telnet', 25: 'SMTP',
-            53: 'DNS', 80: 'HTTP', 110: 'POP3', 135: 'RPC',
-            139: 'NetBIOS', 143: 'IMAP', 443: 'HTTPS', 445: 'SMB',
-            993: 'IMAPS', 995: 'POP3S', 1723: 'PPTP', 3306: 'MySQL',
-            3389: 'RDP', 5900: 'VNC', 8080: 'HTTP-Alt', 8443: 'HTTPS-Alt'
-        }
-
         report = ReportGenerator(target)
-        files = report.generate_all(open_ports, services, banners, vulnerabilities)
+        files  = report.generate_all(open_ports, COMMON_PORTS, banners, vulnerabilities)
 
         update_status(report_files=files)
-
         return jsonify({"status": "success", "files": files})
 
     except Exception as e:
@@ -121,46 +118,44 @@ def generate_report():
 
 @app.route('/api/scan/download/<file_type>')
 def download_report(file_type):
-    """Download a generated report file by type (txt, csv, json, pdf)."""
     with scan_lock:
         files = scan_status.get("report_files", {})
 
     filepath = files.get(file_type)
     if not filepath or not os.path.exists(filepath):
-        return jsonify({"status": "error", "message": f"Report file '{file_type}' not found"}), 404
+        return jsonify({"status": "error", "message": f"Report '{file_type}' not found"}), 404
 
     return send_file(filepath, as_attachment=True)
 
 
-def run_scan(target):
+def run_scan(target, mode='quick'):
     print("=" * 60)
-    print(f"🚀 Scan started for: {target}")
+    print(f"🚀 Scan started — target: {target}, mode: {mode}")
     print("=" * 60)
 
     try:
-        from scanner import scan_target_threaded
-        print("✅ scanner.py imported successfully!")
+        from scanner import scan_target_threaded, get_ports_for_mode
 
-        ports_to_scan = [
-            21, 22, 23, 25, 53, 80, 110, 143,
-            443, 445, 993, 995, 3306, 3389, 5900, 8080, 8443
-        ]
+        ports = get_ports_for_mode(mode)
+        # Use more threads for full scan so it stays reasonably fast
+        max_threads = 100 if mode == 'full' else 50
+
+        print(f"📡 Scanning {len(ports)} ports with {max_threads} threads")
 
         def update_progress(progress, open_ports):
             update_status(progress=progress, open_ports=open_ports)
-            print(f"📊 Progress: {progress}%, Open ports so far: {open_ports}")
 
-        result = scan_target_threaded(target, ports_to_scan, update_progress)
+        result = scan_target_threaded(target, ports, update_progress, max_threads)
 
         update_status(
-            open_ports=result.get("open_ports", []),
-            banners=result.get("banners", {}),
-            vulnerabilities=result.get("vulnerabilities", {}),
-            progress=100,
-            completed=True
+            open_ports      = result.get("open_ports", []),
+            banners         = result.get("banners", {}),
+            vulnerabilities = result.get("vulnerabilities", {}),
+            progress        = 100,
+            completed       = True
         )
 
-        print(f"✅ Scan complete! Found {len(result['open_ports'])} open ports: {result['open_ports']}")
+        print(f"✅ Scan complete! {len(result['open_ports'])} open ports: {result['open_ports']}")
 
     except ImportError as e:
         print(f"❌ scanner.py not found: {e} — falling back to simulation")
@@ -186,7 +181,6 @@ def run_simulation(target):
         open_ports.append(port)
         progress = int(((i + 1) / len(simulated_ports)) * 100)
         update_status(open_ports=open_ports.copy(), progress=progress)
-        print(f"📊 Simulation: {progress}% (found port {port})")
 
     update_status(progress=100, completed=True)
     print("✅ Simulation complete")
