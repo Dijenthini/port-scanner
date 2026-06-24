@@ -1,54 +1,7 @@
 import socket
 import threading
 from datetime import datetime
-
-
-
-def parse_banner_for_vulnerabilities(banner, port):
-
-    vulns = []
-    b = banner.lower()
-
-    
-    if "openssh" in b and "7.2" in b:
-        vulns.append({
-            "cve": "CVE-2016-6210",
-            "description": "OpenSSH < 7.3 allows remote password brute‑forcing",
-            "severity": "Medium"
-        })
-    if "vsftpd" in b and "2.3.4" in b:
-        vulns.append({
-            "cve": "CVE-2011-2523",
-            "description": "vsftpd 2.3.4 backdoor command execution",
-            "severity": "Critical"
-        })
-    if "apache" in b and "2.4.49" in b:
-        vulns.append({
-            "cve": "CVE-2021-41773",
-            "description": "Apache 2.4.49 path traversal and RCE",
-            "severity": "Critical"
-        })
-    if "nginx" in b and "1.14" in b:
-        vulns.append({
-            "cve": "CVE-2019-9511",
-            "description": "Nginx 1.14 HTTP/2 DoS (data Dribble)",
-            "severity": "Medium"
-        })
-    
-    if port == 21 and "220" in b and "ftp" in b:
-        vulns.append({
-            "cve": "CVE-2017-9999",
-            "description": "FTP server may allow anonymous access",
-            "severity": "Low"
-        })
-    if port == 22 and "ssh" in b and "protocol" in b:
-        vulns.append({
-            "cve": "CVE-2018-15473",
-            "description": "OpenSSH user enumeration possible (if version < 7.7)",
-            "severity": "Low"
-        })
-    return vulns
-
+from vulnerabilities import parse_banner_for_vulnerabilities   
 
 
 COMMON_PORTS = {
@@ -91,7 +44,7 @@ FULL_PORTS = list(range(1, 1025))
 
 
 def get_ports_for_mode(mode):
-    
+
     if mode == 'full':
         return FULL_PORTS
     return QUICK_PORTS   
@@ -150,7 +103,7 @@ def grab_banner(target, port, timeout=3):
         return f"No banner ({str(e)[:40]})"
 
 
-def scan_target_threaded(target, ports=None, progress_callback=None, max_threads=50):
+def scan_target_threaded(target, ports=None, progress_callback=None, max_threads=50, live_ref=None):
 
     if ports is None:
         ports = QUICK_PORTS
@@ -170,35 +123,40 @@ def scan_target_threaded(target, ports=None, progress_callback=None, max_threads
     def scan_worker(port):
         is_open = scan_port(target, port)
 
+        
+        port_service = None
+        port_banner  = None
+        port_vulns   = []
+
+        if is_open:
+            port_service = COMMON_PORTS.get(port, "Unknown")
+            port_banner  = grab_banner(target, port)
+
+            if port_banner and "No banner" not in port_banner and "TLS" not in port_banner:
+                port_vulns = parse_banner_for_vulnerabilities(port_banner, port)
+
+            print(f"  ✅ Port {port}: OPEN ({port_service}) — {port_banner[:60]}")
+            if port_vulns:
+                print(f"     ⚠️  {port_vulns[0]['cve']} ({port_vulns[0]['severity']})")
+
+    
         with lock:
             results[port] = is_open
+            if is_open:
+                services[port] = port_service
+                banners[port]  = port_banner
+                if port_vulns:
+                    vulnerabilities[port] = port_vulns
             completed_count[0] += 1
             progress     = int((completed_count[0] / total_ports) * 100)
             current_open = sorted(p for p, v in results.items() if v)
-
-        if is_open:
-            service = COMMON_PORTS.get(port, "Unknown")
-            banner  = grab_banner(target, port)
-
-            vuln_findings = []
-            if banner and "No banner" not in banner and "TLS" not in banner:
-                vuln_findings = parse_banner_for_vulnerabilities(banner, port)
-
-            with lock:
-                services[port] = service
-                banners[port]  = banner
-                if vuln_findings:
-                    vulnerabilities[port] = vuln_findings
-                current_open = sorted(p for p, v in results.items() if v)
-
-            print(f"  ✅ Port {port}: OPEN ({service}) — {banner[:60]}")
-            if vuln_findings:
-                print(f"     ⚠️  {vuln_findings[0]['cve']} ({vuln_findings[0]['severity']})")
+            
+            if live_ref is not None:
+                live_ref['banners']         = dict(banners)
+                live_ref['vulnerabilities'] = dict(vulnerabilities)
 
         
         if progress_callback:
-            with lock:
-                current_open = sorted(p for p, v in results.items() if v)
             progress_callback(progress, current_open)
 
     
