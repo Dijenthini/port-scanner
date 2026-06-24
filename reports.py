@@ -1,222 +1,243 @@
 import csv
-import json
+import json as json_lib
+import os
 from datetime import datetime
+
+REPORTS_DIR = "reports"
+
 
 class ReportGenerator:
     def __init__(self, target):
         self.target = target
         self.timestamp = datetime.now()
-        self.filename_base = f"scan_report_{target}_{self.timestamp.strftime('%Y%m%d_%H%M%S')}"
-    
-    def generate_txt(self, open_ports, service_names=None):
-        """Generate a plain text report"""
+        # Sanitize target so it's safe as a filename
+        safe_target = target.replace(':', '_').replace('/', '_').replace('\\', '_')
+        self.filename_base = os.path.join(
+            REPORTS_DIR,
+            f"scan_report_{safe_target}_{self.timestamp.strftime('%Y%m%d_%H%M%S')}"
+        )
+        os.makedirs(REPORTS_DIR, exist_ok=True)
+
+    def generate_txt(self, open_ports, service_names=None, banners=None, vulnerabilities=None):
+        """Generate a plain-text report."""
         filename = f"{self.filename_base}.txt"
-        
+
         with open(filename, 'w', encoding='utf-8') as f:
-            # Header
             f.write("=" * 60 + "\n")
             f.write("  NETWORK RECONNAISSANCE REPORT\n")
             f.write("=" * 60 + "\n")
-            f.write(f"Target: {self.target}\n")
-            f.write(f"Scan Date: {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"Open Ports Found: {len(open_ports)}\n")
+            f.write(f"Target    : {self.target}\n")
+            f.write(f"Scan Date : {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Open Ports: {len(open_ports)}\n")
             f.write("-" * 60 + "\n\n")
 
-            f.write("OPEN PORTS:\n")
+            f.write("OPEN PORTS\n")
             f.write("-" * 40 + "\n")
             if open_ports:
                 for port in open_ports:
-                    service = service_names.get(port, "Unknown") if service_names else "Unknown"
-                    f.write(f"  Port {port}: OPEN ({service})\n")
+                    service = (service_names or {}).get(port, "Unknown")
+                    banner  = (banners or {}).get(port, "")
+                    f.write(f"  Port {port:5d}: OPEN  ({service})")
+                    if banner:
+                        f.write(f"  —  {banner}")
+                    f.write("\n")
             else:
                 f.write("  No open ports found.\n")
             f.write("\n")
 
-            f.write("RISK ASSESSMENT:\n")
+            f.write("VULNERABILITIES\n")
             f.write("-" * 40 + "\n")
-            risky_ports = {21: "FTP", 23: "Telnet", 25: "SMTP", 3389: "RDP", 5900: "VNC"}
-            found_risks = []
+            vuln_data = vulnerabilities or {}
+            found_any = False
             for port in open_ports:
-                if port in risky_ports:
-                    found_risks.append(f"  [WARNING] Port {port} ({risky_ports[port]}) is considered high-risk")
-            
-            if found_risks:
-                for risk in found_risks:
-                    f.write(risk + "\n")
-            else:
-                f.write("  [OK] No high-risk ports detected\n")
+                if port in vuln_data:
+                    found_any = True
+                    for v in vuln_data[port]:
+                        f.write(f"  [⚠️  {v['severity']}] Port {port} — {v['cve']}: {v['description']}\n")
+                        f.write(f"       Reference: {v.get('link', 'N/A')}\n")
+            if not found_any:
+                f.write("  No known vulnerabilities detected.\n")
             f.write("\n")
-            
+
+            f.write("RISK ASSESSMENT\n")
+            f.write("-" * 40 + "\n")
+            risky = {21: "FTP (unencrypted)", 23: "Telnet (unencrypted)",
+                     25: "SMTP", 3389: "RDP", 5900: "VNC"}
+            risks = [f"  [WARNING] Port {p} ({risky[p]})" for p in open_ports if p in risky]
+            if risks:
+                for r in risks:
+                    f.write(r + "\n")
+            else:
+                f.write("  No high-risk ports detected.\n")
+            f.write("\n")
+
             f.write("=" * 60 + "\n")
             f.write("  END OF REPORT\n")
             f.write("=" * 60 + "\n")
-        
-        print(f"[OK] TXT report saved to: {filename}")
+
+        print(f"[OK] TXT report: {filename}")
         return filename
-    
-    def generate_csv(self, open_ports, service_names=None):
-        """Generate a CSV report"""
+
+    def generate_csv(self, open_ports, service_names=None, banners=None, vulnerabilities=None):
+        """Generate a CSV report."""
         filename = f"{self.filename_base}.csv"
-        
+
         with open(filename, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(['Port', 'Status', 'Service'])
+            writer.writerow(['Port', 'Status', 'Service', 'Banner', 'CVE', 'Severity'])
             if open_ports:
                 for port in open_ports:
-                    service = service_names.get(port, "Unknown") if service_names else "Unknown"
-                    writer.writerow([port, 'OPEN', service])
+                    service = (service_names or {}).get(port, "Unknown")
+                    banner  = (banners or {}).get(port, "")
+                    vulns   = (vulnerabilities or {}).get(port, [])
+                    if vulns:
+                        for v in vulns:
+                            writer.writerow([port, 'OPEN', service, banner, v['cve'], v['severity']])
+                    else:
+                        writer.writerow([port, 'OPEN', service, banner, '', ''])
             else:
-                writer.writerow(['No open ports found', '', ''])
-        
-        print(f"[OK] CSV saved to: {filename}")
+                writer.writerow(['No open ports found', '', '', '', '', ''])
+
+        print(f"[OK] CSV report: {filename}")
         return filename
-    
-    def generate_json(self, open_ports, service_names=None):
-        """Generate a JSON report"""
+
+    def generate_json(self, open_ports, service_names=None, banners=None, vulnerabilities=None):
+        """Generate a JSON report."""
         filename = f"{self.filename_base}.json"
-        
+
         port_details = []
-        if open_ports:
-            for port in open_ports:
-                service = service_names.get(port, "Unknown") if service_names else "Unknown"
-                port_details.append({
-                    'port': port,
-                    'status': 'OPEN',
-                    'service': service
-                })
-        
+        for port in open_ports:
+            service = (service_names or {}).get(port, "Unknown")
+            banner  = (banners or {}).get(port, "")
+            vulns   = (vulnerabilities or {}).get(port, [])
+            port_details.append({
+                'port': port,
+                'status': 'OPEN',
+                'service': service,
+                'banner': banner,
+                'vulnerabilities': vulns
+            })
+
         data = {
             'target': self.target,
             'timestamp': self.timestamp.isoformat(),
             'total_open_ports': len(open_ports),
             'ports': port_details
         }
-        
+
         with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
-        
-        print(f"[OK] JSON saved to: {filename}")
+            json_lib.dump(data, f, indent=2)
+
+        print(f"[OK] JSON report: {filename}")
         return filename
-    
+
     def generate_pdf(self, open_ports, service_names=None, banners=None, vulnerabilities=None):
-        """Generate a professional PDF report"""
+        """Generate a PDF report (requires reportlab)."""
         try:
             from reportlab.lib.pagesizes import letter
             from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
             from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
             from reportlab.lib import colors
             from reportlab.lib.units import inch
-            
+
             filename = f"{self.filename_base}.pdf"
             doc = SimpleDocTemplate(filename, pagesize=letter)
             styles = getSampleStyleSheet()
             story = []
-            
-            # Title
+
             title_style = ParagraphStyle(
-                'CustomTitle',
-                parent=styles['Heading1'],
-                fontSize=24,
-                textColor=colors.darkblue,
-                spaceAfter=30
+                'CustomTitle', parent=styles['Heading1'],
+                fontSize=22, textColor=colors.darkblue, spaceAfter=20
             )
             story.append(Paragraph("Network Reconnaissance Report", title_style))
-            
-            # Metadata
             story.append(Paragraph(f"<b>Target:</b> {self.target}", styles['Normal']))
-            story.append(Paragraph(f"<b>Scan Date:</b> {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
-            story.append(Paragraph(f"<b>Open Ports Found:</b> {len(open_ports)}", styles['Normal']))
-            story.append(Spacer(1, 0.2*inch))
-            
-            # Results Table
+            story.append(Paragraph(f"<b>Date:</b> {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+            story.append(Paragraph(f"<b>Open Ports:</b> {len(open_ports)}", styles['Normal']))
+            story.append(Spacer(1, 0.2 * inch))
+
             if open_ports:
-                data = [['Port', 'Service', 'Banner', 'Vulnerability']]
+                story.append(Paragraph("Open Ports", styles['Heading2']))
+                table_data = [['Port', 'Service', 'Banner', 'Vulnerability']]
                 for port in open_ports:
-                    service = service_names.get(port, "Unknown") if service_names else "Unknown"
-                    banner = banners.get(port, "N/A") if banners else "N/A"
-                    
+                    service = (service_names or {}).get(port, "Unknown")
+                    banner  = (banners or {}).get(port, "N/A")
+                    vulns   = (vulnerabilities or {}).get(port, [])
                     vuln_text = "None detected"
-                    if vulnerabilities and port in vulnerabilities:
-                        vulns = vulnerabilities[port]
+                    if vulns:
                         vuln_text = f"{vulns[0]['cve']} ({vulns[0]['severity']})"
                         if len(vulns) > 1:
                             vuln_text += f" +{len(vulns)-1} more"
-                    
-                    data.append([str(port), service, banner[:50], vuln_text])
-                
-                table = Table(data, colWidths=[0.8*inch, 1.2*inch, 2.5*inch, 1.5*inch])
-                table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, 0), 10),
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                    table_data.append([str(port), service, banner[:50], vuln_text])
+
+                tbl = Table(table_data, colWidths=[0.8*inch, 1.2*inch, 2.5*inch, 1.8*inch])
+                tbl.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4a4a8a')),
+                    ('TEXTCOLOR',  (0, 0), (-1, 0), colors.whitesmoke),
+                    ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE',   (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.lavender),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                 ]))
-                story.append(table)
+                story.append(tbl)
             else:
                 story.append(Paragraph("No open ports found.", styles['Normal']))
-            
-            story.append(Spacer(1, 0.3*inch))
-            
-            # Risk Assessment
+
+            story.append(Spacer(1, 0.3 * inch))
             story.append(Paragraph("Risk Assessment", styles['Heading2']))
-            risky_ports = {
-                21: "FTP (Unencrypted file transfer)",
-                23: "Telnet (Unencrypted remote access)",
-                3389: "RDP (Remote Desktop)",
-                5900: "VNC (Remote desktop)"
-            }
-            
-            found_risks = []
-            for port in open_ports:
-                if port in risky_ports:
-                    found_risks.append(f"• Port {port}: {risky_ports[port]}")
-            
+            risky = {21: "FTP (unencrypted)", 23: "Telnet (unencrypted)", 3389: "RDP", 5900: "VNC"}
+            found_risks = [f"Port {p}: {risky[p]}" for p in open_ports if p in risky]
             if found_risks:
-                story.append(Paragraph("The following high-risk services were detected:", styles['Normal']))
-                for risk in found_risks:
-                    story.append(Paragraph(f"<font color='red'>⚠️ {risk}</font>", styles['Normal']))
+                story.append(Paragraph("High-risk services detected:", styles['Normal']))
+                for r in found_risks:
+                    story.append(Paragraph(f"<font color='red'>⚠️  {r}</font>", styles['Normal']))
             else:
                 story.append(Paragraph("<font color='green'>✅ No high-risk ports detected</font>", styles['Normal']))
-            
+
             doc.build(story)
-            print(f"[OK] PDF report saved to: {filename}")
+            print(f"[OK] PDF report: {filename}")
             return filename
-            
+
         except ImportError:
-            print("⚠️ reportlab not installed. Install with: pip install reportlab")
+            print("⚠️  reportlab not installed — skipping PDF. Run: pip install reportlab")
             return None
         except Exception as e:
-            print(f"❌ PDF generation error: {e}")
+            print(f"❌ PDF error: {e}")
             return None
-    
+
     def generate_all(self, open_ports, service_names=None, banners=None, vulnerabilities=None):
-        """Generate all report types at once"""
-        txt = self.generate_txt(open_ports, service_names)
-        csv = self.generate_csv(open_ports, service_names)
-        json = self.generate_json(open_ports, service_names)
-        
-        # PDF is optional - try to generate but don't fail if it doesn't work
-        pdf = None
+        """Generate TXT, CSV, JSON, and optionally PDF reports."""
+        txt_file  = self.generate_txt(open_ports, service_names, banners, vulnerabilities)
+        csv_file  = self.generate_csv(open_ports, service_names, banners, vulnerabilities)
+        json_file = self.generate_json(open_ports, service_names, banners, vulnerabilities)
+
+        pdf_file = None
         try:
-            pdf = self.generate_pdf(open_ports, service_names, banners, vulnerabilities)
+            pdf_file = self.generate_pdf(open_ports, service_names, banners, vulnerabilities)
         except Exception as e:
-            print(f"⚠️ PDF generation skipped: {e}")
-        
+            print(f"⚠️  PDF skipped: {e}")
+
         return {
-            'txt': txt,
-            'csv': csv,
-            'json': json,
-            'pdf': pdf
+            'txt':  txt_file,
+            'csv':  csv_file,
+            'json': json_file,
+            'pdf':  pdf_file
         }
 
 
+# ── CLI test ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     test_ports = [22, 80, 443]
     test_services = {22: 'SSH', 80: 'HTTP', 443: 'HTTPS'}
+    test_banners = {22: 'SSH-2.0-OpenSSH_8.9', 80: 'Apache/2.4.49'}
+    test_vulns = {
+        80: [{'cve': 'CVE-2021-41773', 'description': 'Path traversal', 'severity': 'CRITICAL',
+              'link': 'https://nvd.nist.gov/vuln/detail/CVE-2021-41773'}]
+    }
+
     report = ReportGenerator("192.168.1.1")
-    report.generate_all(test_ports, test_services)
-    print("\n[OK] All reports generated successfully!")
+    files = report.generate_all(test_ports, test_services, test_banners, test_vulns)
+    print("\n[OK] All reports generated:")
+    for fmt, path in files.items():
+        print(f"  {fmt.upper()}: {path}")

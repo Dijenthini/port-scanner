@@ -4,277 +4,636 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔍 Network Reconnaissance Toolkit</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ── Palette ──────────────────────────────────────────────────────── */
+        :root {
+            --black:       #08060f;
+            --surface:     #110d20;
+            --surface-2:   #1c1630;
+            --border:      #2e2250;
+            --border-hi:   #7c3aed;
+            --purple:      #7c3aed;
+            --purple-light:#a78bfa;
+            --purple-glow: rgba(124,58,237,0.25);
+            --white:       #ffffff;
+            --white-90:    rgba(255,255,255,0.90);
+            --white-60:    rgba(255,255,255,0.60);
+            --white-20:    rgba(255,255,255,0.12);
+            --green:       #22c55e;
+            --red:         #f87171;
+        }
+
         body {
-            background: #0a0618;
-            color: #e8e0f5;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Inter', system-ui, sans-serif;
             min-height: 100vh;
+            padding: 32px 20px;
         }
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-        }
-        .card {
-            background: #1a1035;
-            border: 1px solid #3a2a6a;
-            border-radius: 16px;
-            padding: 28px;
-        }
-        .card-header h1 {
-            margin: 0 0 20px 0;
-            font-size: 28px;
-            background: linear-gradient(135deg, #a78bfa, #8b5cf6, #6d3bd8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .input-group {
+
+        /* ── Layout ──────────────────────────────────────────────────────── */
+        .container { max-width: 960px; margin: 0 auto; }
+
+        /* ── Header ──────────────────────────────────────────────────────── */
+        .header {
             display: flex;
-            gap: 12px;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+        .header-icon {
+            width: 44px; height: 44px;
+            background: var(--purple);
+            border-radius: 12px;
+            display: grid; place-items: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px var(--purple-glow);
+        }
+        .header-text h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.3px;
+        }
+        .header-text p {
+            font-size: 13px;
+            color: var(--white-60);
+            margin-top: 2px;
+        }
+
+        /* ── Card ────────────────────────────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .card-body { padding: 28px; }
+
+        /* ── Section label ───────────────────────────────────────────────── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white-60);
+            margin-bottom: 10px;
+        }
+
+        /* ── Input row ───────────────────────────────────────────────────── */
+        .input-row {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
         }
-        .input-group input {
+        .input-wrap {
             flex: 1;
-            padding: 12px 18px;
-            border: 1px solid #3a2a6a;
+            position: relative;
+        }
+        .input-wrap .input-icon {
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            pointer-events: none;
+        }
+        .input-wrap input {
+            width: 100%;
+            padding: 13px 14px 13px 40px;
+            border: 1px solid var(--border);
             border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            color: #e8e0f5;
+            background: var(--surface-2);
+            color: var(--white);
             font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .input-group input:focus {
+        .input-wrap input::placeholder { color: var(--white-60); }
+        .input-wrap input:focus {
             outline: none;
-            border-color: #8b5cf6;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px var(--purple-glow);
         }
+
         .btn-scan {
-            padding: 12px 32px;
+            padding: 13px 28px;
             border: none;
             border-radius: 10px;
             font-weight: 600;
             font-size: 14px;
-            color: white;
-            background: linear-gradient(135deg, #8b5cf6, #6d3bd8);
+            color: var(--white);
+            background: var(--purple);
             cursor: pointer;
-            transition: all 0.3s ease;
+            white-space: nowrap;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+            box-shadow: 0 4px 14px var(--purple-glow);
         }
         .btn-scan:hover:not(:disabled) {
-            transform: translateY(-2px);
+            background: #6d28d9;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--purple-glow);
         }
-        .btn-scan:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .btn-scan:active:not(:disabled) { transform: translateY(0); }
+        .btn-scan:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+        /* ── Status bar ──────────────────────────────────────────────────── */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--white-20);
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+        .status-dot.scanning { background: var(--purple-light); animation: pulse 1s infinite; }
+        .status-dot.done     { background: var(--green); }
+        .status-dot.error    { background: var(--red); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
         }
         .status-text {
-            font-size: 14px;
-            color: #a890d0;
+            font-size: 13px;
+            color: var(--white-60);
+            transition: color 0.2s;
         }
-        .progress {
-            height: 8px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 10px;
+        .status-text.error { color: var(--red); }
+        .status-text.done  { color: var(--green); }
+
+        .progress-wrap {
+            height: 4px;
+            background: var(--white-20);
+            border-radius: 99px;
             overflow: hidden;
-            margin: 10px 0;
+            margin-bottom: 28px;
         }
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-            border-radius: 10px;
+            background: linear-gradient(90deg, var(--purple), var(--purple-light));
+            border-radius: 99px;
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.4s ease;
         }
-        .results-section h3 {
-            color: #c4b5fd !important;
+
+        /* ── Divider ─────────────────────────────────────────────────────── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0 -28px 28px;
+        }
+
+        /* ── Results header ──────────────────────────────────────────────── */
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .results-header h3 {
+            font-size: 15px;
             font-weight: 600;
+            color: var(--white);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .port-count {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 99px;
+            background: var(--purple-glow);
+            border: 1px solid var(--border-hi);
+            color: var(--purple-light);
+        }
+
+        /* ── Table ───────────────────────────────────────────────────────── */
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        thead { background: var(--surface-2); }
+        th {
+            text-align: left;
+            padding: 11px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white-60);
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--white-90);
+            vertical-align: top;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: rgba(124,58,237,0.06); }
+
+        .port-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--white);
             font-size: 14px;
         }
-        table th {
-            text-align: left;
-            padding: 10px 14px;
-            color: #a890d0;
-            border-bottom: 1px solid #3a2a6a;
+        .badge-open {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
             font-weight: 600;
+            color: var(--green);
+            background: rgba(34,197,94,0.10);
+            border: 1px solid rgba(34,197,94,0.25);
+            border-radius: 6px;
+            padding: 3px 10px;
         }
-        table td {
-            padding: 10px 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            color: #e8e0f5 !important;
-        }
-        table td strong {
-            color: #ffffff !important;
-            font-weight: 700;
-        }
-        table td:nth-child(3) {
-            color: #c4b5fd !important;
-            font-weight: 500;
-        }
-        .status-open {
-            color: #a78bfa !important;
-            font-weight: 600;
+        .service-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--white-90);
         }
         .vuln-none {
-            color: #a78bfa !important;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--white-60);
         }
         .vuln-found {
-            color: #f87171 !important;
-            font-weight: 600;
+            display: inline-flex;
+            flex-direction: column;
+            gap: 2px;
         }
-        table tbody tr:hover {
-            background: rgba(139, 92, 246, 0.08);
+        .vuln-cve {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--red);
+        }
+        .vuln-meta {
+            font-size: 11px;
+            color: var(--white-60);
+        }
+        .severity-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .sev-critical { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+        .sev-high     { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+        .sev-medium   { background: rgba(250,204,21,0.12);  color: #fbbf24; border: 1px solid rgba(250,204,21,0.3); }
+        .sev-low      { background: rgba(34,197,94,0.12);   color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+        /* ── Export ──────────────────────────────────────────────────────── */
+        .export-section { margin-top: 24px; }
+        .export-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white-60);
+            margin-bottom: 10px;
+        }
+        .export-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .btn-export {
-            margin-top: 16px;
-            padding: 8px 20px;
-            border: 1px solid #3a2a6a;
+            padding: 8px 18px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            background: transparent;
-            color: #a890d0;
+            background: var(--surface-2);
+            color: var(--white-60);
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s;
         }
-        .btn-export:hover {
-            background: rgba(139, 92, 246, 0.15);
-            border-color: #8b5cf6;
-            color: #e8e0f5;
+        .btn-export:hover:not(:disabled) {
+            border-color: var(--purple);
+            color: var(--white);
+            background: rgba(124,58,237,0.12);
         }
+        .btn-export:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        #generateBtn {
+            border-color: var(--purple);
+            color: var(--purple-light);
+            background: rgba(124,58,237,0.10);
+            font-weight: 600;
+        }
+        #generateBtn:hover:not(:disabled) {
+            background: rgba(124,58,237,0.22);
+            color: var(--white);
+        }
+        #generateBtn.ready {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(34,197,94,0.08);
+            cursor: default;
+        }
+
+        /* ── Empty state ─────────────────────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--white-60);
+            font-size: 14px;
+        }
+        .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+
+        /* ── Results section hidden by default ───────────────────────────── */
+        .results-section { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-icon">🔍</div>
+        <div class="header-text">
+            <h1>Network Reconnaissance Toolkit</h1>
+            <p>Port scanner &amp; vulnerability detector</p>
+        </div>
+    </div>
+
+    <!-- Main card -->
     <div class="card">
-        <div class="card-header">
-            <h1>🔍 Network Reconnaissance Toolkit</h1>
-        </div>
+        <div class="card-body">
 
-        <div class="input-group">
-            <input type="text" id="targetInput" placeholder="Enter target (e.g., scanme.nmap.org)" value="scanme.nmap.org">
-            <button class="btn-scan" id="scanBtn">🚀 Start Scan</button>
-        </div>
+            <div class="section-label">Target</div>
 
-        <div class="status-text" id="statusText">Ready to scan</div>
-        <div class="progress">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <span class="input-icon">🌐</span>
+                    <input type="text" id="targetInput"
+                           placeholder="e.g. scanme.nmap.org or 192.168.1.1"
+                           value="scanme.nmap.org">
+                </div>
+                <button class="btn-scan" id="scanBtn">▶ Start Scan</button>
+            </div>
 
-        <div class="results-section" id="resultsSection" style="display: none;">
-            <h3>📊 Open Ports Found</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Port</th>
-                        <th>Status</th>
-                        <th>Service</th>
-                        <th>Vulnerability</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsTable"></tbody>
-            </table>
-            <button class="btn-export" id="exportBtn">📥 Export Report</button>
-        </div>
+            <!-- Status -->
+            <div class="status-bar">
+                <div class="status-dot" id="statusDot"></div>
+                <div class="status-text" id="statusText">Ready to scan</div>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
 
+            <!-- Results -->
+            <div class="results-section" id="resultsSection">
+                <div class="divider"></div>
+
+                <div class="results-header">
+                    <h3>Open Ports</h3>
+                    <span class="port-count" id="portCount">0 found</span>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Port</th>
+                                <th>Status</th>
+                                <th>Service</th>
+                                <th>Vulnerability</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable"></tbody>
+                    </table>
+                </div>
+
+                <!-- Export -->
+                <div class="export-section">
+                    <div class="export-label">Export Report</div>
+                    <div class="export-row">
+                        <button class="btn-export" id="generateBtn">📦 Generate Reports</button>
+                        <button class="btn-export" id="dlTxt"  disabled>⬇ TXT</button>
+                        <button class="btn-export" id="dlCsv"  disabled>⬇ CSV</button>
+                        <button class="btn-export" id="dlJson" disabled>⬇ JSON</button>
+                        <button class="btn-export" id="dlPdf"  disabled>⬇ PDF</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
 <script>
-    const services = {
-        21: 'FTP', 22: 'SSH', 23: 'Telnet', 25: 'SMTP',
-        53: 'DNS', 80: 'HTTP', 110: 'POP3', 135: 'RPC',
-        139: 'NetBIOS', 143: 'IMAP', 443: 'HTTPS', 445: 'SMB',
-        993: 'IMAPS', 995: 'POP3S', 1723: 'PPTP', 3306: 'MySQL',
-        3389: 'RDP', 5900: 'VNC', 8080: 'HTTP-Alt'
+    const SERVICE_NAMES = {
+        21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP', 53:'DNS',
+        80:'HTTP', 110:'POP3', 135:'RPC', 139:'NetBIOS', 143:'IMAP',
+        443:'HTTPS', 445:'SMB', 993:'IMAPS', 995:'POP3S', 1723:'PPTP',
+        3306:'MySQL', 3389:'RDP', 5900:'VNC', 8080:'HTTP-Alt', 8443:'HTTPS-Alt'
     };
 
-    let interval = null;
+    let pollInterval  = null;
+    let pollTimeoutId = null;
+    const POLL_TIMEOUT_MS = 5 * 60 * 1000;
 
-    document.getElementById('scanBtn').addEventListener('click', function() {
+    const scanBtn        = document.getElementById('scanBtn');
+    const statusText     = document.getElementById('statusText');
+    const statusDot      = document.getElementById('statusDot');
+    const progressBar    = document.getElementById('progressBar');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsTable   = document.getElementById('resultsTable');
+    const portCount      = document.getElementById('portCount');
+    const generateBtn    = document.getElementById('generateBtn');
+    const dlBtns = {
+        txt:  document.getElementById('dlTxt'),
+        csv:  document.getElementById('dlCsv'),
+        json: document.getElementById('dlJson'),
+        pdf:  document.getElementById('dlPdf')
+    };
+
+    function setStatus(msg, state = 'idle') {
+        statusText.textContent = msg;
+        statusText.className = 'status-text' + (state === 'error' ? ' error' : state === 'done' ? ' done' : '');
+        statusDot.className  = 'status-dot'  + (state === 'scanning' ? ' scanning' : state === 'done' ? ' done' : state === 'error' ? ' error' : '');
+    }
+
+    function stopPolling() {
+        if (pollInterval)  { clearInterval(pollInterval);  pollInterval  = null; }
+        if (pollTimeoutId) { clearTimeout(pollTimeoutId);  pollTimeoutId = null; }
+    }
+
+    function resetScanUI() {
+        scanBtn.disabled    = false;
+        scanBtn.textContent = '▶ Start Scan';
+    }
+
+    function severityClass(sev) {
+        const s = (sev || '').toLowerCase();
+        if (s === 'critical') return 'sev-critical';
+        if (s === 'high')     return 'sev-high';
+        if (s === 'medium')   return 'sev-medium';
+        return 'sev-low';
+    }
+
+    function renderResults(status) {
+        if (!status.open_ports || status.open_ports.length === 0) return;
+
+        resultsSection.style.display = 'block';
+        portCount.textContent = `${status.open_ports.length} found`;
+        resultsTable.innerHTML = '';
+
+        status.open_ports.forEach(port => {
+            const service = SERVICE_NAMES[port] || 'Unknown';
+            let vulnHTML = '<span class="vuln-none">— None detected</span>';
+
+            if (status.vulnerabilities && status.vulnerabilities[port]) {
+                vulnHTML = status.vulnerabilities[port].map(v => `
+                    <div class="vuln-found">
+                        <span class="vuln-cve">${v.cve}</span>
+                        <span class="vuln-meta">
+                            <span class="severity-badge ${severityClass(v.severity)}">${v.severity}</span>
+                            &nbsp;${v.description}
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span class="port-num">${port}</span></td>
+                <td><span class="badge-open">● OPEN</span></td>
+                <td><span class="service-name">${service}</span></td>
+                <td>${vulnHTML}</td>
+            `;
+            resultsTable.appendChild(row);
+        });
+    }
+
+    // ── Start scan ──────────────────────────────────────────────────────────
+    scanBtn.addEventListener('click', function () {
         const target = document.getElementById('targetInput').value.trim();
-        if (!target) {
-            alert('Please enter a target');
-            return;
-        }
+        if (!target) { alert('Please enter a target'); return; }
 
-        console.log('Scanning:', target);
-
-        this.disabled = true;
-        this.textContent = '⏳ Scanning...';
-        document.getElementById('statusText').textContent = '🔄 Scanning...';
-        document.getElementById('progressBar').style.width = '0%';
-        document.getElementById('resultsSection').style.display = 'none';
+        stopPolling();
+        scanBtn.disabled    = true;
+        scanBtn.textContent = '⏳ Scanning...';
+        progressBar.style.width = '0%';
+        resultsSection.style.display = 'none';
+        resultsTable.innerHTML = '';
+        Object.values(dlBtns).forEach(b => b.disabled = true);
+        generateBtn.className = 'btn-export';
+        generateBtn.textContent = '📦 Generate Reports';
+        generateBtn.disabled = false;
+        setStatus('Starting scan...', 'scanning');
 
         fetch('/api/scan/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target: target })
+            body: JSON.stringify({ target })
+        })
+        .then(r => {
+            if (!r.ok) return r.json().then(d => { throw new Error(d.message || 'Failed to start scan'); });
+            return r.json();
         })
         .then(() => {
-            if (interval) clearInterval(interval);
-            interval = setInterval(() => {
-                fetch('/api/scan/status')
-                    .then(r => r.json())
-                    .then(status => {
-                        console.log('Status:', status);
-                        document.getElementById('progressBar').style.width = status.progress + '%';
-
-                        if (status.open_ports && status.open_ports.length > 0) {
-                            document.getElementById('resultsSection').style.display = 'block';
-                            const table = document.getElementById('resultsTable');
-                            table.innerHTML = '';
-                            status.open_ports.forEach(port => {
-                                const service = services[port] || 'Unknown';
-
-                                let vulnHTML = '<span class="vuln-none">✅ None</span>';
-                                if (status.vulnerabilities && status.vulnerabilities[port]) {
-                                    const vulns = status.vulnerabilities[port];
-                                    vulnHTML = vulns.map(v => `
-                                        <span class="vuln-found">
-                                            ⚠️ ${v.cve}
-                                            <br><small>${v.severity}</small>
-                                        </span>
-                                    `).join('<br>');
-                                }
-
-                                table.innerHTML += `
-                                    <tr>
-                                        <td><strong>${port}</strong></td>
-                                        <td class="status-open">✅ OPEN</td>
-                                        <td>${service}</td>
-                                        <td>${vulnHTML}</td>
-                                    </tr>
-                                `;
-                            });
-                        }
-
-                        if (status.completed) {
-                            clearInterval(interval);
-                            document.getElementById('scanBtn').disabled = false;
-                            document.getElementById('scanBtn').textContent = '🚀 Start Scan';
-                            document.getElementById('statusText').textContent = '✅ Scan complete!';
-                        }
-                    });
-            }, 1000);
+            setStatus('Scanning ports...', 'scanning');
+            startPolling();
+        })
+        .catch(err => {
+            setStatus(err.message, 'error');
+            resetScanUI();
         });
     });
 
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        this.textContent = '⏳ Generating...';
+    function startPolling() {
+        pollTimeoutId = setTimeout(() => {
+            stopPolling();
+            setStatus('Scan timed out. Please try again.', 'error');
+            resetScanUI();
+        }, POLL_TIMEOUT_MS);
+
+        pollInterval = setInterval(() => {
+            fetch('/api/scan/status')
+                .then(r => r.json())
+                .then(status => {
+                    progressBar.style.width = status.progress + '%';
+                    renderResults(status);
+
+                    if (status.error) {
+                        stopPolling();
+                        setStatus('Scan error: ' + status.error, 'error');
+                        resetScanUI();
+                        return;
+                    }
+
+                    if (status.completed) {
+                        stopPolling();
+                        const count = (status.open_ports || []).length;
+                        setStatus(`Scan complete — ${count} open port${count !== 1 ? 's' : ''} found`, 'done');
+                        resetScanUI();
+                        if (count === 0) {
+                            resultsSection.style.display = 'block';
+                            resultsTable.innerHTML = `
+                                <tr><td colspan="4">
+                                    <div class="empty-state">
+                                        <div class="icon">🔒</div>
+                                        No open ports found on this target.
+                                    </div>
+                                </td></tr>`;
+                        }
+                    }
+                })
+                .catch(() => { /* network blip — keep polling */ });
+        }, 1000);
+    }
+
+    // ── Generate reports ────────────────────────────────────────────────────
+    generateBtn.addEventListener('click', function () {
+        if (generateBtn.classList.contains('ready')) return;
+        generateBtn.disabled    = true;
+        generateBtn.textContent = '⏳ Generating...';
+
         fetch('/api/scan/report', { method: 'POST' })
             .then(r => r.json())
             .then(data => {
-                alert('✅ Reports generated successfully!');
-                this.textContent = '📥 Export Report';
+                if (data.status !== 'success') throw new Error(data.message || 'Report failed');
+                const files = data.files || {};
+                if (files.txt)  dlBtns.txt.disabled  = false;
+                if (files.csv)  dlBtns.csv.disabled  = false;
+                if (files.json) dlBtns.json.disabled = false;
+                if (files.pdf)  dlBtns.pdf.disabled  = false;
+                generateBtn.textContent = '✅ Reports Ready';
+                generateBtn.classList.add('ready');
             })
-            .catch(() => {
-                this.textContent = '📥 Export Report';
-                alert('Error generating report');
+            .catch(err => {
+                alert('❌ ' + (err.message || 'Error generating reports'));
+                generateBtn.disabled    = false;
+                generateBtn.textContent = '📦 Generate Reports';
             });
     });
+
+    // ── Download buttons ────────────────────────────────────────────────────
+    dlBtns.txt.addEventListener('click',  () => window.location.href = '/api/scan/download/txt');
+    dlBtns.csv.addEventListener('click',  () => window.location.href = '/api/scan/download/csv');
+    dlBtns.json.addEventListener('click', () => window.location.href = '/api/scan/download/json');
+    dlBtns.pdf.addEventListener('click',  () => window.location.href = '/api/scan/download/pdf');
 </script>
 
 </body>
