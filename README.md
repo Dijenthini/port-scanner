@@ -367,3 +367,7 @@ Give this project a star ⭐ on GitHub!
 ](https://www.linkedin.com/in/niduwara-jayasiri-2169a33ab/)
 
 ---
+
+💜 Built with Python, Flask, and a passion for cybersecurity.
+
+*Stay curious. Stay ethical. Happy scanning!* 🔍
