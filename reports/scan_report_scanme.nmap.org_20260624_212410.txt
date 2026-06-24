@@ -1,0 +1,25 @@
+============================================================
+  NETWORK RECONNAISSANCE REPORT
+============================================================
+Target    : scanme.nmap.org
+Scan Date : 2026-06-24 21:24:10
+Open Ports: 2
+------------------------------------------------------------
+
+OPEN PORTS
+----------------------------------------
+  Port    22: OPEN  (SSH)  —  SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2.13
+  Port    80: OPEN  (HTTP)  —  HTTP/1.1 200 OK
+
+VULNERABILITIES
+----------------------------------------
+  [⚠️  MEDIUM] Port 22 — CVE-2015-5600: MaxAuthTries bypass / brute-force amplification
+       Reference: https://nvd.nist.gov/vuln/detail/CVE-2015-5600
+
+RISK ASSESSMENT
+----------------------------------------
+  No high-risk ports detected.
+
+============================================================
+  END OF REPORT
+============================================================
